@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(20);
+select plan(21);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'organizations', 'organizations table exists');
@@ -96,6 +96,16 @@ insert into auth.users (
     now(),
     now()
   );
+
+select results_eq(
+  $$
+    select full_name
+    from public.profiles
+    where user_id = '10000000-0000-0000-0000-000000000001'
+  $$,
+  array['Owner Test'::text],
+  'registration metadata creates the professional profile'
+);
 
 insert into public.organizations (id, name, slug, created_by)
 values

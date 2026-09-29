@@ -1,0 +1,146 @@
+import { Icon, type IconName } from "@/components/icon";
+import { requireWorkspace } from "@/lib/auth/session";
+import { formatClinicDate, formatCurrency } from "@/lib/format";
+
+export const metadata = { title: "Inicio" };
+
+const metrics: Array<{
+  label: string;
+  value: string;
+  note: string;
+  icon: IconName;
+}> = [
+  {
+    label: "Citas de hoy",
+    value: "0",
+    note: "Sin citas programadas",
+    icon: "calendar",
+  },
+  {
+    label: "Pacientes activos",
+    value: "0",
+    note: "Aún sin registros",
+    icon: "patients",
+  },
+  {
+    label: "Planes activos",
+    value: "0",
+    note: "Aún sin planes",
+    icon: "clipboard",
+  },
+  {
+    label: "Ingresos del mes",
+    value: formatCurrency(0),
+    note: "Mes actual",
+    icon: "payments",
+  },
+];
+
+export default async function DashboardPage() {
+  const { fullName } = await requireWorkspace();
+  const firstName = fullName.split(/\s+/)[0];
+
+  return (
+    <div className="mx-auto max-w-[88rem]">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="eyebrow">Resumen del consultorio</p>
+          <h1 className="mt-2 text-2xl font-semibold tracking-[-0.04em] sm:text-[2rem]">
+            Buen día, {firstName}
+          </h1>
+          <p className="mt-2 text-sm text-[var(--text-muted)]">
+            Este es el estado actual de tu práctica.
+          </p>
+        </div>
+        <button className="button-primary sm:w-auto" type="button" disabled>
+          <span aria-hidden="true">+</span>
+          Nuevo paciente
+          <span className="sr-only">Próximamente</span>
+        </button>
+      </div>
+
+      <section
+        className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+        aria-label="Indicadores"
+      >
+        {metrics.map((metric) => (
+          <article className="metric-card" key={metric.label}>
+            <div className="flex items-start justify-between gap-4">
+              <p className="text-sm font-medium text-[var(--text-muted)]">
+                {metric.label}
+              </p>
+              <Icon
+                name={metric.icon}
+                className="size-[1.1rem] text-[var(--brand-600)]"
+              />
+            </div>
+            <p className="mt-5 text-[1.85rem] font-semibold tracking-[-0.045em] text-[var(--ink)]">
+              {metric.value}
+            </p>
+            <p className="mt-1.5 text-xs text-[var(--text-faint)]">
+              {metric.note}
+            </p>
+          </article>
+        ))}
+      </section>
+
+      <section className="mt-5 grid gap-5 xl:grid-cols-[1.45fr_0.85fr]">
+        <article className="panel min-h-[25rem]">
+          <div className="panel-header">
+            <div>
+              <h2 className="panel-title">Agenda de hoy</h2>
+              <p className="panel-description">
+                {formatClinicDate(new Date())}
+              </p>
+            </div>
+            <button className="button-secondary" type="button" disabled>
+              Ver agenda
+            </button>
+          </div>
+          <div className="grid min-h-[19rem] place-items-center px-6 py-10 text-center">
+            <div className="max-w-sm">
+              <span className="mx-auto grid size-11 place-items-center rounded-xl border border-[var(--line)] bg-[var(--surface-muted)] text-[var(--brand-700)]">
+                <Icon name="calendar" className="size-5" />
+              </span>
+              <h3 className="mt-5 text-base font-semibold">
+                Tu agenda está libre
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+                Las próximas consultas aparecerán aquí cuando habilitemos el
+                módulo de agenda.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <article className="panel">
+          <div className="panel-header">
+            <div>
+              <h2 className="panel-title">Primeros pasos</h2>
+              <p className="panel-description">Configuración del espacio</p>
+            </div>
+          </div>
+          <ol className="divide-y divide-[var(--line)] px-5">
+            {[
+              ["Consultorio creado", "Completado", true],
+              ["Personalizar identidad", "Próximamente", false],
+              ["Registrar primer paciente", "Próximamente", false],
+            ].map(([label, status, complete], index) => (
+              <li className="flex items-center gap-3 py-4" key={String(label)}>
+                <span className={complete ? "step step-complete" : "step"}>
+                  {complete ? "✓" : index + 1}
+                </span>
+                <span className="min-w-0 flex-1 text-sm font-medium">
+                  {label}
+                </span>
+                <span className="text-xs text-[var(--text-faint)]">
+                  {status}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </article>
+      </section>
+    </div>
+  );
+}

@@ -1,8 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3f7f2;
-  --foreground: #18322b;
+  --canvas: #f5f7f4;
+  --background: #f5f7f4;
+  --surface: #ffffff;
+  --surface-muted: #f8faf7;
+  --ink: #172d26;
+  --foreground: #172d26;
+  --text-muted: #5f716a;
+  --text-faint: #87958f;
+  --line: #e1e8e3;
+  --line-strong: #ced9d1;
+  --brand-50: #f2f8f4;
+  --brand-100: #e2f0e7;
+  --brand-500: #3a7b5f;
+  --brand-600: #2d6a4f;
+  --brand-700: #245b46;
+  --brand-950: #17392e;
+  --sage-100: #dcebe1;
+  --sage-200: #c1dccb;
+  --sage-300: #9bc7aa;
+  --danger: #a44444;
+  --danger-bg: #fff5f4;
+  --success: #2d684e;
+  --success-bg: #f0f8f3;
 }
 
 @theme inline {
@@ -16,4 +37,128 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button:not(:disabled),
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--brand-100);
+  color: var(--brand-950);
+}
+
+@layer components {
+  .eyebrow {
+    @apply text-[0.68rem] font-semibold uppercase tracking-[0.17em] text-[var(--brand-600)];
+  }
+
+  .field-label {
+    @apply mb-2 block text-sm font-semibold text-[var(--ink)];
+  }
+
+  .field-input {
+    @apply h-12 w-full rounded-xl border border-[var(--line-strong)] bg-white px-4 text-[0.95rem] text-[var(--ink)] outline-none transition duration-150 placeholder:text-[#a4aea9] hover:border-[#b5c6bc] focus:border-[var(--brand-500)] focus:ring-3 focus:ring-[var(--brand-100)];
+  }
+
+  .field-input[aria-invalid="true"] {
+    @apply border-[#c98282] focus:border-[#b95f5f] focus:ring-[#f6dddd];
+  }
+
+  .button-primary {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--brand-700)] px-5 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(36,91,70,0.15)] transition duration-150 hover:bg-[var(--brand-950)] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[var(--brand-100)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-[#759586] disabled:shadow-none;
+  }
+
+  .button-secondary {
+    @apply inline-flex min-h-9 items-center justify-center rounded-lg border border-[var(--line-strong)] bg-white px-3.5 text-xs font-semibold text-[var(--ink)] transition hover:border-[#afc0b6] hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-100)] disabled:cursor-not-allowed disabled:opacity-55;
+  }
+
+  .form-error,
+  .form-success {
+    @apply rounded-xl border px-4 py-3 text-sm leading-5;
+  }
+
+  .form-error {
+    @apply border-[#efd1ce] bg-[var(--danger-bg)] text-[var(--danger)];
+  }
+
+  .form-success {
+    @apply border-[#cee5d5] bg-[var(--success-bg)] text-[var(--success)];
+  }
+
+  .nav-item {
+    @apply flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-100)];
+  }
+
+  .nav-item-active {
+    @apply bg-[var(--brand-50)] text-[var(--brand-700)];
+  }
+
+  .icon-button {
+    @apply grid size-9 place-items-center rounded-lg text-[var(--text-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-100)];
+  }
+
+  .mobile-nav {
+    @apply flex min-h-12 flex-col items-center justify-center gap-1 text-[0.65rem] font-medium;
+  }
+
+  .mobile-nav-active {
+    @apply text-[var(--brand-700)];
+  }
+
+  .metric-card,
+  .panel {
+    @apply rounded-2xl border border-[var(--line)] bg-white;
+  }
+
+  .metric-card {
+    @apply p-5 shadow-[0_1px_2px_rgba(21,53,42,0.025)];
+  }
+
+  .panel {
+    @apply overflow-hidden shadow-[0_1px_2px_rgba(21,53,42,0.025)];
+  }
+
+  .panel-header {
+    @apply flex min-h-[4.75rem] items-center justify-between gap-4 border-b border-[var(--line)] px-5 py-4 sm:px-6;
+  }
+
+  .panel-title {
+    @apply text-sm font-semibold text-[var(--ink)];
+  }
+
+  .panel-description {
+    @apply mt-1 text-xs text-[var(--text-faint)];
+  }
+
+  .step {
+    @apply grid size-7 shrink-0 place-items-center rounded-full border border-[var(--line-strong)] bg-white text-[0.68rem] font-bold text-[var(--text-faint)];
+  }
+
+  .step-complete {
+    @apply border-[var(--brand-100)] bg-[var(--brand-100)] text-[var(--brand-700)];
+  }
+}
+
+.auth-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.28) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(
+    to bottom right,
+    transparent 5%,
+    black,
+    transparent 88%
+  );
 }
