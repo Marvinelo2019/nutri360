@@ -8,6 +8,9 @@ export type IconName =
   | "logout"
   | "payments"
   | "patients"
+  | "plus"
+  | "search"
+  | "scale"
   | "settings"
   | "spark";
 
@@ -60,6 +63,19 @@ const paths: Record<IconName, React.ReactNode> = {
     <>
       <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
       <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  plus: <path d="M12 5v14M5 12h14" />,
+  search: (
+    <>
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-4-4" />
+    </>
+  ),
+  scale: (
+    <>
+      <path d="M5 20h14l-1-12H6L5 20Z" />
+      <path d="M9 8a3 3 0 0 1 6 0M12 8l1.8-2" />
     </>
   ),
 };

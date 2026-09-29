@@ -1,19 +1,9 @@
-import Link from "next/link";
-
 import { logoutAction } from "@/features/auth/actions";
 import type { Database } from "@/types/database";
 
 import { BrandMark } from "./brand-mark";
-import { Icon, type IconName } from "./icon";
-
-const navigation: Array<{ label: string; icon: IconName; href?: string }> = [
-  { label: "Inicio", icon: "dashboard", href: "/dashboard" },
-  { label: "Agenda", icon: "calendar" },
-  { label: "Pacientes", icon: "patients" },
-  { label: "Planes", icon: "clipboard" },
-  { label: "Pagos", icon: "payments" },
-  { label: "Configuración", icon: "settings" },
-];
+import { Icon } from "./icon";
+import { WorkspaceNavigation } from "./workspace-navigation";
 
 function initials(name: string) {
   return name
@@ -62,30 +52,7 @@ export function AppShell({
         </div>
 
         <nav className="mt-6 flex-1 px-4" aria-label="Navegación principal">
-          <ul className="space-y-1">
-            {navigation.map((item) => (
-              <li key={item.label}>
-                {item.href ? (
-                  <Link
-                    href={item.href}
-                    className="nav-item nav-item-active"
-                    aria-current="page"
-                  >
-                    <Icon name={item.icon} className="size-[1.1rem]" />
-                    {item.label}
-                  </Link>
-                ) : (
-                  <span className="nav-item cursor-default text-[var(--text-muted)]">
-                    <Icon name={item.icon} className="size-[1.1rem]" />
-                    <span className="flex-1">{item.label}</span>
-                    <span className="text-[0.58rem] font-semibold uppercase tracking-wide text-[var(--text-faint)]">
-                      Pronto
-                    </span>
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
+          <WorkspaceNavigation />
         </nav>
 
         <div className="border-t border-[var(--line)] p-4">
@@ -144,26 +111,7 @@ export function AppShell({
           className="fixed inset-x-0 bottom-0 z-30 border-t border-[var(--line)] bg-white/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-md lg:hidden"
           aria-label="Navegación móvil"
         >
-          <ul className="grid grid-cols-4">
-            {navigation.slice(0, 4).map((item) => (
-              <li key={item.label}>
-                {item.href ? (
-                  <Link
-                    className="mobile-nav mobile-nav-active"
-                    href={item.href}
-                  >
-                    <Icon name={item.icon} className="size-5" />
-                    <span>{item.label}</span>
-                  </Link>
-                ) : (
-                  <span className="mobile-nav text-[var(--text-faint)]">
-                    <Icon name={item.icon} className="size-5" />
-                    <span>{item.label}</span>
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
+          <WorkspaceNavigation mobile />
         </nav>
       </div>
     </div>

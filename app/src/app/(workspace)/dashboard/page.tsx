@@ -1,10 +1,13 @@
+import Link from "next/link";
+
 import { Icon, type IconName } from "@/components/icon";
+import { getPatientCount } from "@/features/patients/data";
 import { requireWorkspace } from "@/lib/auth/session";
 import { formatClinicDate, formatCurrency } from "@/lib/format";
 
 export const metadata = { title: "Inicio" };
 
-const metrics: Array<{
+const baseMetrics: Array<{
   label: string;
   value: string;
   note: string;
@@ -15,12 +18,6 @@ const metrics: Array<{
     value: "0",
     note: "Sin citas programadas",
     icon: "calendar",
-  },
-  {
-    label: "Pacientes activos",
-    value: "0",
-    note: "Aún sin registros",
-    icon: "patients",
   },
   {
     label: "Planes activos",
@@ -38,7 +35,18 @@ const metrics: Array<{
 
 export default async function DashboardPage() {
   const { fullName } = await requireWorkspace();
+  const patientCount = await getPatientCount();
   const firstName = fullName.split(/\s+/)[0];
+  const metrics = [
+    baseMetrics[0],
+    {
+      label: "Pacientes activos",
+      value: String(patientCount),
+      note: patientCount ? "Expedientes vigentes" : "Aún sin registros",
+      icon: "patients" as IconName,
+    },
+    ...baseMetrics.slice(1),
+  ];
 
   return (
     <div className="mx-auto max-w-[88rem]">
@@ -52,11 +60,10 @@ export default async function DashboardPage() {
             Este es el estado actual de tu práctica.
           </p>
         </div>
-        <button className="button-primary sm:w-auto" type="button" disabled>
-          <span aria-hidden="true">+</span>
+        <Link className="button-primary sm:w-auto" href="/pacientes/nuevo">
+          <Icon name="plus" className="size-4" />
           Nuevo paciente
-          <span className="sr-only">Próximamente</span>
-        </button>
+        </Link>
       </div>
 
       <section
@@ -124,7 +131,11 @@ export default async function DashboardPage() {
             {[
               ["Consultorio creado", "Completado", true],
               ["Personalizar identidad", "Próximamente", false],
-              ["Registrar primer paciente", "Próximamente", false],
+              [
+                "Registrar primer paciente",
+                patientCount ? "Completado" : "Pendiente",
+                patientCount > 0,
+              ],
             ].map(([label, status, complete], index) => (
               <li className="flex items-center gap-3 py-4" key={String(label)}>
                 <span className={complete ? "step step-complete" : "step"}>
