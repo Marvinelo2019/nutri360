@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { BrandMark } from "@/components/brand-mark";
 import { Icon } from "@/components/icon";
+import { logoutAction } from "@/features/auth/actions";
 import { OrganizationForm } from "@/features/organizations/organization-form";
 import { requireIdentity } from "@/lib/auth/session";
 
@@ -42,6 +43,14 @@ export default async function OnboardingPage() {
               nutricionales y documentos.
             </p>
             <OrganizationForm />
+            <form action={logoutAction} className="mt-5 text-center">
+              <button
+                className="text-sm font-semibold text-[var(--text-muted)] underline-offset-4 hover:text-[var(--brand-700)] hover:underline"
+                type="submit"
+              >
+                Cerrar sesión y usar otra cuenta
+              </button>
+            </form>
           </section>
         </div>
       </div>

@@ -31,10 +31,17 @@ export const getCurrentContext = cache(async () => {
       .maybeSingle(),
   ]);
 
+  // A locally reset or remotely revoked account can leave a still-valid JWT
+  // in the browser. A profile is created transactionally for every real user,
+  // so its absence means the session must not enter onboarding.
+  if (!profile) {
+    return null;
+  }
+
   if (!membership) {
     return {
       userId,
-      fullName: profile?.full_name ?? "Profesional",
+      fullName: profile.full_name,
       workspace: null,
     };
   }
@@ -48,7 +55,7 @@ export const getCurrentContext = cache(async () => {
 
   return {
     userId,
-    fullName: profile?.full_name ?? "Profesional",
+    fullName: profile.full_name,
     workspace: organization ? { ...organization, role: membership.role } : null,
   };
 });
