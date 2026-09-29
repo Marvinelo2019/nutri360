@@ -1,4 +1,5 @@
 .DS_Store
+/node_modules/
 /legacy-fisioterapia/
 /tmp/
 /MVP – Sistema para Nutricionistas.pdf

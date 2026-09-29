@@ -1,0 +1,2 @@
+-- Keep local seed data synthetic and free of patient or production information.
+-- Phase 0 intentionally creates no users; authentication flows will add fixtures later.
