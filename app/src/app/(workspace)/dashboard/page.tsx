@@ -1,9 +1,15 @@
 import Link from "next/link";
 
 import { Icon, type IconName } from "@/components/icon";
+import { getDailyAgenda } from "@/features/appointments/data";
+import { appointmentModalityLabels } from "@/features/appointments/presentation";
 import { getPatientCount } from "@/features/patients/data";
 import { requireWorkspace } from "@/lib/auth/session";
-import { formatClinicDate, formatCurrency } from "@/lib/format";
+import {
+  formatClinicDate,
+  formatClinicTime,
+  formatCurrency,
+} from "@/lib/format";
 
 export const metadata = { title: "Inicio" };
 
@@ -35,10 +41,22 @@ const baseMetrics: Array<{
 
 export default async function DashboardPage() {
   const { fullName } = await requireWorkspace();
-  const patientCount = await getPatientCount();
+  const [patientCount, todayAppointments] = await Promise.all([
+    getPatientCount(),
+    getDailyAgenda(),
+  ]);
+  const activeTodayAppointments = todayAppointments.filter(
+    (appointment) => !["cancelled", "rescheduled"].includes(appointment.status),
+  );
   const firstName = fullName.split(/\s+/)[0];
   const metrics = [
-    baseMetrics[0],
+    {
+      ...baseMetrics[0],
+      value: String(activeTodayAppointments.length),
+      note: activeTodayAppointments.length
+        ? "Consultas programadas"
+        : "Sin citas programadas",
+    },
     {
       label: "Pacientes activos",
       value: String(patientCount),
@@ -100,24 +118,51 @@ export default async function DashboardPage() {
                 {formatClinicDate(new Date())}
               </p>
             </div>
-            <button className="button-secondary" type="button" disabled>
+            <Link className="button-secondary" href="/agenda">
               Ver agenda
-            </button>
+            </Link>
           </div>
-          <div className="grid min-h-[19rem] place-items-center px-6 py-10 text-center">
-            <div className="max-w-sm">
-              <span className="mx-auto grid size-11 place-items-center rounded-xl border border-[var(--line)] bg-[var(--surface-muted)] text-[var(--brand-700)]">
-                <Icon name="calendar" className="size-5" />
-              </span>
-              <h3 className="mt-5 text-base font-semibold">
-                Tu agenda está libre
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-                Las próximas consultas aparecerán aquí cuando habilitemos el
-                módulo de agenda.
-              </p>
+          {activeTodayAppointments.length ? (
+            <div className="divide-y divide-[var(--line)]">
+              {activeTodayAppointments.slice(0, 5).map((appointment) => (
+                <div
+                  className="flex items-center gap-4 px-5 py-4 sm:px-6"
+                  key={appointment.id}
+                >
+                  <p className="w-16 shrink-0 text-sm font-semibold text-[var(--brand-700)]">
+                    {formatClinicTime(new Date(appointment.starts_at))}
+                  </p>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">
+                      {appointment.patient
+                        ? `${appointment.patient.first_name} ${appointment.patient.last_name}`
+                        : "Paciente"}
+                    </p>
+                    <p className="mt-1 text-xs text-[var(--text-faint)]">
+                      {appointmentModalityLabels[appointment.modality]}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="grid min-h-[19rem] place-items-center px-6 py-10 text-center">
+              <div className="max-w-sm">
+                <span className="mx-auto grid size-11 place-items-center rounded-xl border border-[var(--line)] bg-[var(--surface-muted)] text-[var(--brand-700)]">
+                  <Icon name="calendar" className="size-5" />
+                </span>
+                <h3 className="mt-5 text-base font-semibold">
+                  Tu agenda está libre
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
+                  Programa una consulta y aparecerá en este resumen.
+                </p>
+                <Link className="button-secondary mt-5" href="/agenda/nueva">
+                  Programar cita
+                </Link>
+              </div>
+            </div>
+          )}
         </article>
 
         <article className="panel">

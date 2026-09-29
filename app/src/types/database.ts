@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          ends_at: string;
+          id: string;
+          modality: Database["public"]["Enums"]["appointment_modality"];
+          organization_id: string;
+          patient_id: string;
+          professional_user_id: string;
+          starts_at: string;
+          status: Database["public"]["Enums"]["appointment_status"];
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       anthropometric_measurements: {
         Row: {
           age_years_snapshot: number;
@@ -242,6 +260,23 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      change_appointment_status: {
+        Args: {
+          next_status: Database["public"]["Enums"]["appointment_status"];
+          target_appointment_id: string;
+        };
+        Returns: undefined;
+      };
+      create_appointment: {
+        Args: {
+          appointment_modality: Database["public"]["Enums"]["appointment_modality"];
+          duration_minutes: number;
+          local_start: string;
+          target_patient_id: string;
+          target_professional_user_id: string;
+        };
+        Returns: string;
+      };
       create_organization: {
         Args: { organization_name: string; organization_slug: string };
         Returns: string;
@@ -275,6 +310,18 @@ export type Database = {
         Args: { target_entity_type: string; target_patient_id: string };
         Returns: undefined;
       };
+      list_appointments_for_local_date: {
+        Args: { target_date: string; target_organization_id: string };
+        Returns: Database["public"]["Tables"]["appointments"]["Row"][];
+      };
+      list_scheduling_professionals: {
+        Args: { target_organization_id: string };
+        Returns: {
+          full_name: string;
+          role: Database["public"]["Enums"]["app_role"];
+          user_id: string;
+        }[];
+      };
     };
     Enums: {
       adult_bmi_classification:
@@ -287,6 +334,14 @@ export type Database = {
         | "obesity_ii"
         | "obesity_iii";
       app_role: "owner" | "nutritionist" | "assistant" | "patient";
+      appointment_modality: "in_person" | "video" | "phone";
+      appointment_status:
+        | "pending"
+        | "confirmed"
+        | "completed"
+        | "no_show"
+        | "cancelled"
+        | "rescheduled";
       growth_reference_sex: "female" | "male";
       membership_status: "invited" | "active" | "suspended";
       patient_status: "active" | "inactive" | "archived";
