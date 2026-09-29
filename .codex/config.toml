@@ -1,0 +1,3 @@
+# Project-local Codex configuration. Keep secrets out of this file.
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
