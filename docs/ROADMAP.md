@@ -13,6 +13,7 @@
 
 - Patients, search, consent, and pre-consultation intake.
 - Dietary history, consultations, SOAP notes, anthropometry, and laboratory results.
+- Fast adult weight-and-height assessment plus age-appropriate paediatric growth-reference calculations.
 - Versioned clinical calculations and progress comparisons.
 
 **Gate:** a nutritionist can complete an initial consultation and a follow-up using synthetic data.

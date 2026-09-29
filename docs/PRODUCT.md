@@ -24,7 +24,9 @@ The central product promise is that a nutritionist can prepare a complete, brand
 ### 2. Consultation and anthropometry
 
 - Record weight, height, waist, hip, circumferences, skinfolds, and body-fat percentage.
+- Provide a fast weight-and-height workflow with immediate, clearly labelled measured, calculated, estimated, and reference-derived results.
 - Calculate BMI, waist-to-hip ratio, and supported body-composition indicators.
+- Apply adult cut-offs only to adults and use the appropriate WHO age- and sex-specific growth references for paediatric patients.
 - Record basic laboratory results with units and reference ranges.
 - Record SOAP notes and compare with the previous consultation.
 - Display progress charts from the second consultation onward.
