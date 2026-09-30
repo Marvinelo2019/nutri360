@@ -13,6 +13,7 @@ import {
   formatClinicTime,
   shiftDateKey,
 } from "@/lib/format";
+import { requireWorkspace } from "@/lib/auth/session";
 import type { Database } from "@/types/database";
 
 export const metadata = { title: "Agenda" };
@@ -38,7 +39,10 @@ export default async function AgendaPage({
 }) {
   const query = await searchParams;
   const date = isDateKey(query.fecha) ? query.fecha : clinicDateKey();
-  const appointments = await getDailyAgenda(date);
+  const [{ workspace }, appointments] = await Promise.all([
+    requireWorkspace(),
+    getDailyAgenda(date),
+  ]);
   const displayDate = new Date(`${date}T12:00:00Z`);
 
   return (
@@ -53,10 +57,20 @@ export default async function AgendaPage({
             Organiza las consultas del equipo sin cruces de horario.
           </p>
         </div>
-        <Link className="button-primary" href={`/agenda/nueva?fecha=${date}`}>
-          <Icon name="plus" className="size-4" />
-          Nueva cita
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {workspace.role !== "assistant" && (
+            <Link
+              className="button-secondary min-h-12"
+              href="/agenda/configuracion"
+            >
+              Reservas públicas
+            </Link>
+          )}
+          <Link className="button-primary" href={`/agenda/nueva?fecha=${date}`}>
+            <Icon name="plus" className="size-4" />
+            Nueva cita
+          </Link>
+        </div>
       </div>
       <section className="panel mt-7">
         <div className="panel-header">

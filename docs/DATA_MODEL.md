@@ -45,7 +45,10 @@ Store timestamps in UTC and render them using the organization's time zone. Stor
 ### Operations
 
 - `appointments`: patient, professional, start/end timestamps, modality, status, and meeting link.
-- `availability_rules` and `availability_blocks`: recurring schedules and exceptions.
+- `public_booking_settings`: organization-level enabled state, slot duration, notice, horizon, modality, public instructions, and privacy-consent version.
+- `availability_rules` and `availability_blocks`: professional recurring schedules and timezone-aware exceptions.
+- `public_booking_rate_limits`: short-lived HMAC request counters without raw network identifiers.
+- Public appointments snapshot their booking source and privacy-consent version; anonymously created administrative patients and appointments have no authenticated `created_by` actor.
 - `reminders`: appointment, channel, scheduled time, state, attempt count, and provider ID.
 - `packages`: reusable package definition.
 - `patient_packages`: purchase, session totals, consumed sessions, expiration, and state.

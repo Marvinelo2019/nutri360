@@ -4,9 +4,9 @@ Last updated: 2026-09-30.
 
 ## Current checkpoint
 
-The food-groups and configurable-equivalents increment is complete locally and validated by the user in the browser. Explanatory copy was improved after usability feedback. The local Supabase migration `20260930003100_food_groups_and_equivalents.sql` is applied. The prior clinical-planning work is preserved in the current Git checkpoint.
+The public-booking increment is complete locally and validated by the user in the browser. The local Supabase migration `20260930003200_public_booking.sql` is applied. The food-groups/equivalents and prior clinical-planning work remain preserved in Git checkpoints.
 
-Development is intentionally paused before importing individual foods. The user is consulting a nutritionist to validate the regional data source and professional workflow; do not invent or seed nutritional values while this decision is pending.
+Individual-food work remains intentionally paused. The user is consulting a nutritionist to validate the regional data source and professional workflow; do not invent or seed nutritional values while this decision is pending.
 
 ## Completed locally
 
@@ -19,22 +19,24 @@ Development is intentionally paused before importing individual foods. The user 
 - Adult energy calculations using Mifflin-St Jeor (1990), revised Harris-Benedict / Roza-Shizgal (1984), and FAO/WHO/UNU (1985).
 - Activity and goal adjustment, macro distribution by percentage or g/kg, immutable calculation history, and meal-plan target prefill.
 - Organization-configurable food groups, equivalent nutrient snapshots on draft plan items, and estimated plan totals.
+- Configurable professional availability, one-off agenda blocks, and an enableable public booking link.
+- Mobile public slot selection with minimal patient contact data, pending appointment creation, versioned privacy consent, conflict protection, and durable HMAC-based rate limiting.
 
 ## Verification
 
-- Application: 16 test files and 46 tests pass.
-- Database: 9 pgTAP files and 211 tests pass.
+- Application: 18 test files and 50 tests pass.
+- Database: 10 pgTAP files and 245 tests pass.
 - ESLint, strict TypeScript, Prettier check, production build, and Supabase database lint pass.
 
 ## Important repository state
 
-The completed food-groups/equivalents increment is preserved in the latest checkpoint on `main`. The preceding meal-plan, payment, consultation, history, extended-anthropometry, and energy-calculation increments remain consolidated in the prior clinical-planning checkpoint.
+The completed and browser-validated public-booking increment is preserved in the latest checkpoint on `main`. The completed food-groups/equivalents increment remains preserved in the prior feature checkpoint; the precise food-data research pause is preserved in its following documentation checkpoint.
 
 ## Recommended next work
 
 1. Review the nutritionist's response and select a regional food-data source before adding individual foods.
-2. Add a validated local food dataset and nutrient-aware meal items.
-3. Add reusable meal-plan templates and private branded PDF generation.
+2. Add reusable meal-plan templates and private branded PDF generation.
+3. Continue appointments with reminders or Google Calendar synchronization.
 
 ## Pending professional validation
 
@@ -42,4 +44,4 @@ Ask which food-composition table and edition are used in Guatemala, whether the 
 
 ## Resume instruction
 
-Read this file, `docs/ROADMAP.md`, and the newest plan under `docs/plans/` before continuing. Verify `git status` and the latest commit. Resume by reviewing the nutritionist's answers and any source or licensing documents the user provides.
+Read this file, `docs/ROADMAP.md`, and the newest plan under `docs/plans/` before continuing. Verify `git status` and the latest commit. Food-data work resumes only after reviewing the nutritionist's answers and any source or licensing documents the user provides.

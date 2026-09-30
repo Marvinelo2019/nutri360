@@ -9,15 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      appointments: {
+      availability_blocks: {
         Row: {
           created_at: string;
           created_by: string;
           ends_at: string;
           id: string;
+          label: string | null;
+          organization_id: string;
+          professional_user_id: string;
+          starts_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      availability_rules: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          day_of_week: number;
+          ends_at_local: string;
+          id: string;
+          is_active: boolean;
+          organization_id: string;
+          professional_user_id: string;
+          starts_at_local: string;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      appointments: {
+        Row: {
+          booking_source: "staff" | "public";
+          created_at: string;
+          created_by: string | null;
+          ends_at: string;
+          id: string;
           modality: Database["public"]["Enums"]["appointment_modality"];
           organization_id: string;
           patient_id: string;
+          privacy_consent_accepted_at: string | null;
+          privacy_consent_version: string | null;
           professional_user_id: string;
           starts_at: string;
           status: Database["public"]["Enums"]["appointment_status"];
@@ -363,6 +398,23 @@ export type Database = {
         };
         Relationships: [];
       };
+      public_booking_settings: {
+        Row: {
+          appointment_duration_minutes: number;
+          booking_horizon_days: number;
+          created_at: string;
+          default_modality: Database["public"]["Enums"]["appointment_modality"];
+          is_enabled: boolean;
+          minimum_notice_hours: number;
+          organization_id: string;
+          privacy_consent_version: string;
+          public_instructions: string | null;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       patient_clinical_profiles: {
         Row: {
           consultation_reason: string | null;
@@ -415,7 +467,7 @@ export type Database = {
         Row: {
           birth_date: string;
           created_at: string;
-          created_by: string;
+          created_by: string | null;
           deleted_at: string | null;
           email: string | null;
           first_name: string;
@@ -529,6 +581,35 @@ export type Database = {
         Args: { target_consultation_id: string };
         Returns: undefined;
       };
+      consume_public_booking_rate_limit: {
+        Args: {
+          maximum_requests: number;
+          rate_fingerprint_hash: string;
+          rate_scope: string;
+          window_seconds: number;
+        };
+        Returns: boolean;
+      };
+      create_availability_block: {
+        Args: {
+          block_label: string | null;
+          local_end: string;
+          local_start: string;
+          target_organization_id: string;
+          target_professional_user_id: string;
+        };
+        Returns: string;
+      };
+      create_availability_rule: {
+        Args: {
+          local_end: string;
+          local_start: string;
+          target_organization_id: string;
+          target_professional_user_id: string;
+          weekday: number;
+        };
+        Returns: string;
+      };
       create_consultation: {
         Args: {
           consultation_time: string;
@@ -619,6 +700,42 @@ export type Database = {
           target_patient_id: string;
         };
         Returns: string;
+      };
+      create_public_booking: {
+        Args: {
+          booking_slug: string;
+          patient_birth_date: string;
+          patient_email: string | null;
+          patient_first_name: string;
+          patient_last_name: string;
+          patient_phone_e164: string;
+          selected_start: string;
+          target_professional_user_id: string;
+        };
+        Returns: string;
+      };
+      delete_availability_block: {
+        Args: { target_block_id: string };
+        Returns: undefined;
+      };
+      delete_availability_rule: {
+        Args: { target_rule_id: string };
+        Returns: undefined;
+      };
+      get_public_booking_context: {
+        Args: { booking_slug: string };
+        Returns: {
+          appointment_duration_minutes: number;
+          booking_horizon_days: number;
+          brand_color: string;
+          clinic_timezone: string;
+          contact_phone: string | null;
+          minimum_notice_hours: number;
+          organization_name: string;
+          organization_slug: string;
+          privacy_consent_version: string;
+          public_instructions: string | null;
+        }[];
       };
       record_adult_anthropometry: {
         Args: {
@@ -749,6 +866,19 @@ export type Database = {
         Args: { target_date: string; target_organization_id: string };
         Returns: Database["public"]["Tables"]["appointments"]["Row"][];
       };
+      list_public_booking_slots: {
+        Args: {
+          booking_slug: string;
+          requested_days?: number;
+          target_start_date: string;
+        };
+        Returns: {
+          ends_at: string;
+          professional_name: string;
+          professional_user_id: string;
+          starts_at: string;
+        }[];
+      };
       list_payments_for_local_month: {
         Args: { target_month: string; target_organization_id: string };
         Returns: Database["public"]["Tables"]["payments"]["Row"][];
@@ -760,6 +890,18 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"];
           user_id: string;
         }[];
+      };
+      save_public_booking_settings: {
+        Args: {
+          booking_enabled: boolean;
+          booking_instructions: string | null;
+          booking_modality: Database["public"]["Enums"]["appointment_modality"];
+          duration_minutes: number;
+          horizon_days: number;
+          notice_hours: number;
+          target_organization_id: string;
+        };
+        Returns: undefined;
       };
     };
     Enums: {
