@@ -89,17 +89,24 @@ export async function updateMealItemAction(
     quantity: formData.get("quantity"),
     unit: formData.get("unit"),
     guidance: formData.get("guidance"),
+    foodGroupId: formData.get("foodGroupId"),
+    equivalentCount: formData.get("equivalentCount"),
   });
   if (!parsed.success)
     return { status: "error", errors: parsed.error.flatten().fieldErrors };
   const supabase = await createServerSupabaseClient();
-  const { error } = await supabase.rpc("update_meal_plan_item", {
-    target_item_id: parsed.data.itemId,
-    item_food_name: parsed.data.foodName,
-    item_quantity: parsed.data.quantity,
-    item_unit: parsed.data.unit,
-    item_guidance: parsed.data.guidance || null,
-  });
+  const { error } = await supabase.rpc(
+    "update_meal_plan_item_with_equivalent",
+    {
+      target_item_id: parsed.data.itemId,
+      item_food_name: parsed.data.foodName,
+      item_quantity: parsed.data.quantity,
+      item_unit: parsed.data.unit,
+      item_guidance: parsed.data.guidance || null,
+      target_food_group_id: parsed.data.foodGroupId ?? null,
+      item_equivalent_count: parsed.data.equivalentCount ?? null,
+    },
+  );
   if (error)
     return { status: "error", message: "No pudimos actualizar el alimento." };
   revalidatePath(`/planes/${parsed.data.planId}`);
@@ -120,16 +127,20 @@ export async function addMealItemAction(
     quantity: formData.get("quantity"),
     unit: formData.get("unit"),
     guidance: formData.get("guidance"),
+    foodGroupId: formData.get("foodGroupId"),
+    equivalentCount: formData.get("equivalentCount"),
   });
   if (!parsed.success)
     return { status: "error", errors: parsed.error.flatten().fieldErrors };
   const supabase = await createServerSupabaseClient();
-  const { error } = await supabase.rpc("add_meal_plan_item", {
+  const { error } = await supabase.rpc("add_meal_plan_item_with_equivalent", {
     target_meal_id: parsed.data.mealId,
     item_food_name: parsed.data.foodName,
     item_quantity: parsed.data.quantity,
     item_unit: parsed.data.unit,
     item_guidance: parsed.data.guidance || null,
+    target_food_group_id: parsed.data.foodGroupId ?? null,
+    item_equivalent_count: parsed.data.equivalentCount ?? null,
   });
   if (error)
     return { status: "error", message: "No pudimos agregar el alimento." };

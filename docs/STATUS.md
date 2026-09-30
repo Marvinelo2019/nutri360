@@ -4,7 +4,7 @@ Last updated: 2026-09-30.
 
 ## Current checkpoint
 
-The adult energy and macronutrient calculation increment is complete locally, validated by the user in the browser, and included in the current Git checkpoint. The local Supabase migration `20260930003000_energy_calculations.sql` is applied.
+The food-groups and configurable-equivalents increment is complete locally and validated by the user in the browser. Explanatory copy was improved after usability feedback. The local Supabase migration `20260930003100_food_groups_and_equivalents.sql` is applied. The prior clinical-planning work is preserved in the current Git checkpoint.
 
 ## Completed locally
 
@@ -16,20 +16,21 @@ The adult energy and macronutrient calculation increment is complete locally, va
 - SOAP consultations, clinical histories, dietary histories, and laboratory results.
 - Adult energy calculations using Mifflin-St Jeor (1990), revised Harris-Benedict / Roza-Shizgal (1984), and FAO/WHO/UNU (1985).
 - Activity and goal adjustment, macro distribution by percentage or g/kg, immutable calculation history, and meal-plan target prefill.
+- Organization-configurable food groups, equivalent nutrient snapshots on draft plan items, and estimated plan totals.
 
 ## Verification
 
-- Application: 14 test files and 40 tests pass.
-- Database: 8 pgTAP files and 181 tests pass.
+- Application: 16 test files and 46 tests pass.
+- Database: 9 pgTAP files and 211 tests pass.
 - ESLint, strict TypeScript, Prettier check, production build, and Supabase database lint pass.
 
 ## Important repository state
 
-The completed meal-plan, payment, consultation, history, extended-anthropometry, and energy-calculation increments are consolidated in the current clinical-planning checkpoint on `main`.
+The completed food-groups/equivalents increment is preserved in the latest checkpoint on `main`. The preceding meal-plan, payment, consultation, history, extended-anthropometry, and energy-calculation increments remain consolidated in the prior clinical-planning checkpoint.
 
 ## Recommended next work
 
-1. Implement food groups and configurable equivalents.
+1. Select and validate a regional food-data source before adding individual foods.
 2. Add a validated local food dataset and nutrient-aware meal items.
 3. Add reusable meal-plan templates and private branded PDF generation.
 

@@ -101,6 +101,27 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      food_groups: {
+        Row: {
+          carbohydrate_g: number;
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          energy_kcal: number;
+          fat_g: number;
+          id: string;
+          is_active: boolean;
+          name: string;
+          organization_id: string;
+          portion_guidance: string | null;
+          protein_g: number;
+          sort_order: number;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       lab_results: {
         Row: {
           collected_on: string;
@@ -125,6 +146,13 @@ export type Database = {
           created_at: string;
           created_by: string;
           deleted_at: string | null;
+          equivalent_carbohydrate_g: number | null;
+          equivalent_count: number | null;
+          equivalent_energy_kcal: number | null;
+          equivalent_fat_g: number | null;
+          equivalent_protein_g: number | null;
+          food_group_id: string | null;
+          food_group_name_snapshot: string | null;
           food_name: string;
           guidance: string | null;
           id: string;
@@ -464,6 +492,18 @@ export type Database = {
         };
         Returns: string;
       };
+      add_meal_plan_item_with_equivalent: {
+        Args: {
+          item_equivalent_count: number | null;
+          item_food_name: string;
+          item_guidance: string | null;
+          item_quantity: number;
+          item_unit: string;
+          target_food_group_id: string | null;
+          target_meal_id: string;
+        };
+        Returns: string;
+      };
       change_appointment_status: {
         Args: {
           next_status: Database["public"]["Enums"]["appointment_status"];
@@ -508,6 +548,20 @@ export type Database = {
           selected_protein: number;
           source_measurement_id: string;
           target_patient_id: string;
+        };
+        Returns: string;
+      };
+      create_food_group: {
+        Args: {
+          group_carbohydrate_g: number;
+          group_description: string | null;
+          group_energy_kcal: number;
+          group_fat_g: number;
+          group_name: string;
+          group_portion_guidance: string | null;
+          group_protein_g: number;
+          group_sort_order: number;
+          target_organization_id: string;
         };
         Returns: string;
       };
@@ -632,6 +686,33 @@ export type Database = {
           item_quantity: number;
           item_unit: string;
           target_item_id: string;
+        };
+        Returns: undefined;
+      };
+      update_meal_plan_item_with_equivalent: {
+        Args: {
+          item_equivalent_count: number | null;
+          item_food_name: string;
+          item_guidance: string | null;
+          item_quantity: number;
+          item_unit: string;
+          target_food_group_id: string | null;
+          target_item_id: string;
+        };
+        Returns: undefined;
+      };
+      update_food_group: {
+        Args: {
+          group_carbohydrate_g: number;
+          group_description: string | null;
+          group_energy_kcal: number;
+          group_fat_g: number;
+          group_is_active: boolean;
+          group_name: string;
+          group_portion_guidance: string | null;
+          group_protein_g: number;
+          group_sort_order: number;
+          target_group_id: string;
         };
         Returns: undefined;
       };

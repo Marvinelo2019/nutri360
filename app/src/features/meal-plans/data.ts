@@ -41,29 +41,41 @@ export async function getMealPlan(planId: string) {
     .eq("organization_id", workspace.id)
     .maybeSingle();
   if (!plan) return null;
-  const [{ data: patient }, { data: meals }, { data: items }] =
-    await Promise.all([
-      supabase
-        .from("patients")
-        .select("id, first_name, last_name")
-        .eq("id", plan.patient_id)
-        .maybeSingle(),
-      supabase
-        .from("meal_plan_meals")
-        .select("*")
-        .eq("meal_plan_id", planId)
-        .order("sort_order"),
-      supabase
-        .from("meal_plan_items")
-        .select("*")
-        .eq("meal_plan_id", planId)
-        .is("deleted_at", null)
-        .order("sort_order"),
-    ]);
+  const [
+    { data: patient },
+    { data: meals },
+    { data: items },
+    { data: foodGroups },
+  ] = await Promise.all([
+    supabase
+      .from("patients")
+      .select("id, first_name, last_name")
+      .eq("id", plan.patient_id)
+      .maybeSingle(),
+    supabase
+      .from("meal_plan_meals")
+      .select("*")
+      .eq("meal_plan_id", planId)
+      .order("sort_order"),
+    supabase
+      .from("meal_plan_items")
+      .select("*")
+      .eq("meal_plan_id", planId)
+      .is("deleted_at", null)
+      .order("sort_order"),
+    supabase
+      .from("food_groups")
+      .select("id, name")
+      .eq("organization_id", workspace.id)
+      .eq("is_active", true)
+      .order("sort_order")
+      .order("name"),
+  ]);
   await supabase.rpc("record_meal_plan_read", { target_plan_id: planId });
   return {
     plan,
     patient,
+    foodGroups: foodGroups ?? [],
     meals: (meals ?? []).map((meal) => ({
       ...meal,
       items: (items ?? []).filter((item) => item.meal_id === meal.id),

@@ -34,12 +34,12 @@ Store timestamps in UTC and render them using the organization's time zone. Stor
 
 ### Nutrition planning
 
-- `food_groups`: organization-configurable equivalent definitions.
+- `food_groups`: organization-configurable equivalent definitions with portion guidance, energy/macronutrients per equivalent, ordering, and active state.
 - `foods`: local or organization-defined food, portion, nutrients, source, and version.
 - `energy_calculations`: immutable adult calculation snapshot with source measurement, reference sex and age, versioned Mifflin-St Jeor / revised Harris-Benedict / FAO-WHO-UNU formula, activity factor, explicit goal adjustment, resting/total/target energy, macro method inputs, and gram outputs.
 - `meal_plans`: patient, targets, status, version, validity, and generated PDF object path.
 - `meal_plan_meals`: meal time, ordering, and option number.
-- `meal_plan_items`: meal option, food, quantity, unit, and calculated nutrients.
+- `meal_plan_items`: meal option, food, quantity, unit, and optional immutable food-group/equivalent nutrient snapshot.
 - `meal_plan_templates`: reusable organization-owned plan structure.
 
 ### Operations

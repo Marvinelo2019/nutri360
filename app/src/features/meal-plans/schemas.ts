@@ -26,9 +26,7 @@ export const mealPlanSchema = z
     },
   );
 
-export const mealItemSchema = z.object({
-  mealId: z.uuid(),
-  planId: z.uuid(),
+const mealItemFields = {
   foodName: z.string().trim().min(1, "Ingresa el alimento.").max(160),
   quantity: z.coerce
     .number()
@@ -36,13 +34,44 @@ export const mealItemSchema = z.object({
     .max(10000),
   unit: z.string().trim().min(1, "Ingresa la unidad.").max(40),
   guidance: z.string().trim().max(500).optional(),
-});
+  foodGroupId: z.preprocess(
+    (value) => (value === "" || value === null ? undefined : value),
+    z.uuid().optional(),
+  ),
+  equivalentCount: z.preprocess(
+    (value) => (value === "" || value === null ? undefined : value),
+    z.coerce.number().min(0.01).max(100).optional(),
+  ),
+};
 
-export const mealItemUpdateSchema = mealItemSchema
-  .omit({ mealId: true })
-  .extend({
+function validateEquivalentPair(
+  data: { foodGroupId?: string; equivalentCount?: number },
+  context: z.RefinementCtx,
+) {
+  if (Boolean(data.foodGroupId) !== Boolean(data.equivalentCount)) {
+    context.addIssue({
+      code: "custom",
+      path: [data.foodGroupId ? "equivalentCount" : "foodGroupId"],
+      message: "Selecciona el grupo y la cantidad de equivalentes juntos.",
+    });
+  }
+}
+
+export const mealItemSchema = z
+  .object({
+    ...mealItemFields,
+    mealId: z.uuid(),
+    planId: z.uuid(),
+  })
+  .superRefine(validateEquivalentPair);
+
+export const mealItemUpdateSchema = z
+  .object({
+    ...mealItemFields,
+    planId: z.uuid(),
     itemId: z.uuid(),
-  });
+  })
+  .superRefine(validateEquivalentPair);
 
 export type MealPlanFormValues = {
   patientId: string;

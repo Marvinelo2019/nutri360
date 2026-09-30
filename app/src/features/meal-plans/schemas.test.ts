@@ -40,4 +40,18 @@ describe("meal plan schemas", () => {
       }).success,
     ).toBe(false);
   });
+
+  it("requires group and equivalent count together", () => {
+    expect(
+      mealItemSchema.safeParse({
+        mealId: crypto.randomUUID(),
+        planId: crypto.randomUUID(),
+        foodName: "Avena",
+        quantity: 0.5,
+        unit: "taza",
+        foodGroupId: crypto.randomUUID(),
+        equivalentCount: "",
+      }).success,
+    ).toBe(false);
+  });
 });

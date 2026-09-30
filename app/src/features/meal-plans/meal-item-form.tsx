@@ -8,9 +8,11 @@ import { initialMealItemState } from "./schemas";
 export function MealItemForm({
   mealId,
   planId,
+  foodGroups,
 }: {
   mealId: string;
   planId: string;
+  foodGroups: Array<{ id: string; name: string }>;
 }) {
   const [state, action, pending] = useActionState(
     addMealItemAction,
@@ -70,16 +72,62 @@ export function MealItemForm({
       <button className="button-secondary h-10" disabled={pending}>
         {pending ? "…" : "Agregar"}
       </button>
+      <div className="grid gap-3 sm:col-span-4 sm:grid-cols-[1fr_8rem_1.4fr]">
+        <div>
+          <label
+            className="mb-1 block text-[0.68rem] font-medium text-[var(--text-faint)]"
+            htmlFor={`group-${mealId}`}
+          >
+            Grupo opcional
+          </label>
+          <select
+            className="field-input h-10"
+            id={`group-${mealId}`}
+            name="foodGroupId"
+            defaultValue=""
+          >
+            <option value="">Sin equivalente</option>
+            {foodGroups.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label
+            className="mb-1 block text-[0.68rem] font-medium text-[var(--text-faint)]"
+            htmlFor={`equivalents-${mealId}`}
+          >
+            Núm. equivalentes
+          </label>
+          <input
+            className="field-input h-10"
+            id={`equivalents-${mealId}`}
+            name="equivalentCount"
+            type="number"
+            min="0.01"
+            max="100"
+            step="0.25"
+            placeholder="Equiv."
+          />
+        </div>
+        <div>
+          <label
+            className="mb-1 block text-[0.68rem] font-medium text-[var(--text-faint)]"
+            htmlFor={`guidance-${mealId}`}
+          >
+            Indicación opcional
+          </label>
+          <input
+            className="field-input h-10"
+            id={`guidance-${mealId}`}
+            name="guidance"
+            placeholder="Indicación opcional"
+          />
+        </div>
+      </div>
       <div className="sm:col-span-4">
-        <label className="sr-only" htmlFor={`guidance-${mealId}`}>
-          Indicación opcional
-        </label>
-        <input
-          className="field-input h-10"
-          id={`guidance-${mealId}`}
-          name="guidance"
-          placeholder="Indicación opcional"
-        />
         {state.message && (
           <p
             className={`mt-2 text-xs ${state.status === "success" ? "text-[var(--success)]" : "text-[var(--danger)]"}`}

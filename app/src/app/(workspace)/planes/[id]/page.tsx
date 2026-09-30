@@ -5,6 +5,7 @@ import { changeMealPlanStatusAction } from "@/features/meal-plans/actions";
 import { getMealPlan } from "@/features/meal-plans/data";
 import { MealItemForm } from "@/features/meal-plans/meal-item-form";
 import { MealItemRow } from "@/features/meal-plans/meal-item-row";
+import { calculateEquivalentTotals } from "@/lib/nutrition/equivalents";
 
 export const metadata = { title: "Detalle del plan" };
 const statusLabels = {
@@ -26,6 +27,9 @@ export default async function MealPlanPage({
   const itemCount = record.meals.reduce(
     (total, meal) => total + meal.items.length,
     0,
+  );
+  const estimated = calculateEquivalentTotals(
+    record.meals.flatMap((meal) => meal.items),
   );
   return (
     <div className="mx-auto max-w-5xl">
@@ -106,6 +110,45 @@ export default async function MealPlanPage({
           </p>
         </article>
       </section>
+      <section className="panel mt-5 p-5 sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-sm font-semibold">Estimado por equivalentes</h2>
+            <p className="mt-1 text-xs text-[var(--text-faint)]">
+              Suma basada únicamente en alimentos asociados a un grupo
+              configurado.
+            </p>
+          </div>
+          <Link
+            className="text-xs font-semibold text-[var(--brand-700)] hover:underline"
+            href="/equivalentes"
+          >
+            Configurar grupos
+          </Link>
+        </div>
+        {estimated.itemCount ? (
+          <dl className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {[
+              ["Energía", `${Math.round(estimated.energy)} kcal`],
+              ["Proteína", `${estimated.protein.toFixed(1)} g`],
+              ["Carbohidratos", `${estimated.carbohydrate.toFixed(1)} g`],
+              ["Grasas", `${estimated.fat.toFixed(1)} g`],
+            ].map(([label, value]) => (
+              <div
+                className="rounded-xl bg-[var(--surface-muted)] p-4"
+                key={label}
+              >
+                <dt className="text-xs text-[var(--text-faint)]">{label}</dt>
+                <dd className="mt-2 text-lg font-semibold">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : (
+          <p className="mt-5 text-sm text-[var(--text-muted)]">
+            Aún no hay alimentos con equivalentes asignados.
+          </p>
+        )}
+      </section>
       {record.plan.instructions && (
         <section className="panel mt-5 p-5">
           <h2 className="text-sm font-semibold">Indicaciones generales</h2>
@@ -128,6 +171,7 @@ export default async function MealPlanPage({
                 {meal.items.map((item) => (
                   <MealItemRow
                     editable={editable}
+                    foodGroups={record.foodGroups}
                     item={item}
                     key={item.id}
                     planId={id}
@@ -139,7 +183,13 @@ export default async function MealPlanPage({
                 Sin alimentos agregados.
               </p>
             )}
-            {editable && <MealItemForm mealId={meal.id} planId={id} />}
+            {editable && (
+              <MealItemForm
+                foodGroups={record.foodGroups}
+                mealId={meal.id}
+                planId={id}
+              />
+            )}
           </section>
         ))}
       </div>

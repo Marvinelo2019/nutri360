@@ -11,16 +11,22 @@ export function MealItemRow({
   item,
   planId,
   editable,
+  foodGroups,
 }: {
   item: Tables<"meal_plan_items">;
   planId: string;
   editable: boolean;
+  foodGroups: Array<{ id: string; name: string }>;
 }) {
   const [editing, setEditing] = useState(false);
   const [foodName, setFoodName] = useState(item.food_name);
   const [quantity, setQuantity] = useState(String(item.quantity));
   const [unit, setUnit] = useState(item.unit);
   const [guidance, setGuidance] = useState(item.guidance ?? "");
+  const [foodGroupId, setFoodGroupId] = useState(item.food_group_id ?? "");
+  const [equivalentCount, setEquivalentCount] = useState(
+    item.equivalent_count == null ? "" : String(item.equivalent_count),
+  );
   const [state, action, pending] = useActionState(
     updateMealItemAction,
     initialMealItemState,
@@ -31,6 +37,10 @@ export function MealItemRow({
     setQuantity(String(item.quantity));
     setUnit(item.unit);
     setGuidance(item.guidance ?? "");
+    setFoodGroupId(item.food_group_id ?? "");
+    setEquivalentCount(
+      item.equivalent_count == null ? "" : String(item.equivalent_count),
+    );
     setEditing(false);
   }
 
@@ -95,18 +105,66 @@ export function MealItemRow({
               Cancelar
             </button>
           </div>
+          <div className="grid gap-3 sm:col-span-4 sm:grid-cols-[1fr_8rem_1.4fr]">
+            <div>
+              <label
+                className="mb-1 block text-[0.68rem] font-medium text-[var(--text-faint)]"
+                htmlFor={`edit-group-${item.id}`}
+              >
+                Grupo opcional
+              </label>
+              <select
+                className="field-input h-10"
+                id={`edit-group-${item.id}`}
+                name="foodGroupId"
+                onChange={(event) => setFoodGroupId(event.target.value)}
+                value={foodGroupId}
+              >
+                <option value="">Sin equivalente</option>
+                {foodGroups.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                className="mb-1 block text-[0.68rem] font-medium text-[var(--text-faint)]"
+                htmlFor={`edit-equivalents-${item.id}`}
+              >
+                Núm. equivalentes
+              </label>
+              <input
+                className="field-input h-10"
+                id={`edit-equivalents-${item.id}`}
+                max="100"
+                min="0.01"
+                name="equivalentCount"
+                onChange={(event) => setEquivalentCount(event.target.value)}
+                step="0.25"
+                type="number"
+                value={equivalentCount}
+              />
+            </div>
+            <div>
+              <label
+                className="mb-1 block text-[0.68rem] font-medium text-[var(--text-faint)]"
+                htmlFor={`edit-guidance-${item.id}`}
+              >
+                Indicación opcional
+              </label>
+              <input
+                className="field-input h-10"
+                id={`edit-guidance-${item.id}`}
+                name="guidance"
+                onChange={(event) => setGuidance(event.target.value)}
+                placeholder="Indicación opcional"
+                value={guidance}
+              />
+            </div>
+          </div>
           <div className="sm:col-span-4">
-            <label className="sr-only" htmlFor={`edit-guidance-${item.id}`}>
-              Indicación opcional
-            </label>
-            <input
-              className="field-input h-10"
-              id={`edit-guidance-${item.id}`}
-              name="guidance"
-              onChange={(event) => setGuidance(event.target.value)}
-              placeholder="Indicación opcional"
-              value={guidance}
-            />
             {state.status !== "idle" && (
               <p
                 className={`mt-2 text-xs ${state.status === "success" ? "text-[var(--success)]" : "text-[var(--danger)]"}`}
@@ -129,6 +187,12 @@ export function MealItemRow({
         {item.guidance && (
           <p className="mt-1 text-xs text-[var(--text-muted)]">
             {item.guidance}
+          </p>
+        )}
+        {item.food_group_name_snapshot && item.equivalent_count != null && (
+          <p className="mt-1 text-xs font-medium text-[var(--brand-700)]">
+            {item.equivalent_count} equivalentes ·{" "}
+            {item.food_group_name_snapshot}
           </p>
         )}
       </div>

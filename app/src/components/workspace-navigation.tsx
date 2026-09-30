@@ -10,6 +10,7 @@ const navigation: Array<{ label: string; icon: IconName; href?: string }> = [
   { label: "Agenda", icon: "calendar", href: "/agenda" },
   { label: "Pacientes", icon: "patients", href: "/pacientes" },
   { label: "Planes", icon: "clipboard", href: "/planes" },
+  { label: "Equivalentes", icon: "spark", href: "/equivalentes" },
   { label: "Pagos", icon: "payments", href: "/pagos" },
   { label: "Configuración", icon: "settings" },
 ];
