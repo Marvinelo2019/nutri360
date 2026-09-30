@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(22);
+select plan(24);
 
 select has_table('public', 'patients', 'patients table exists');
 select has_table('public', 'patient_clinical_profiles', 'clinical profiles table exists');
@@ -35,6 +35,8 @@ select results_eq($$select count(*) from public.patient_consents where withdrawn
 select lives_ok($$select public.record_adult_anthropometry((select id from public.patients where first_name = 'Ana'),70,175)$$, 'owner records adult anthropometry');
 select results_eq($$select bmi from public.anthropometric_measurements$$, array[22.86::numeric], 'BMI is calculated in database');
 select results_eq($$select bmi_classification from public.anthropometric_measurements$$, array['normal'::public.adult_bmi_classification], 'BMI classification is stored');
+select lives_ok($$select public.record_extended_adult_anthropometry((select id from public.patients where first_name='Ana'),69,175,80,100,28,52,35,15,18,16,20)$$,'owner records extended anthropometry');
+select results_eq($$select waist_hip_ratio from public.anthropometric_measurements where waist_cm is not null$$,array[0.800::numeric],'waist hip ratio is calculated');
 
 select lives_ok($$select public.create_patient('21000000-0000-0000-0000-000000000001','Luis','Pérez',(current_date - interval '12 years')::date,'male',null,null,null,null,true)$$, 'minor patient can be registered');
 select throws_ok($$select public.record_adult_anthropometry((select id from public.patients where first_name = 'Luis'),45,150)$$, 'P0001', 'Adult calculation requires age 18 or older', 'adult calculation rejects minors');

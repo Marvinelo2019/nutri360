@@ -38,6 +38,47 @@ export function MeasurementForm({ patientId }: { patientId: string }) {
           18+ años
         </span>
       </div>
+      <details className="mt-5 border-t border-[var(--line)] pt-4">
+        <summary className="cursor-pointer text-sm font-semibold text-[var(--brand-700)]">
+          Agregar circunferencias y pliegues
+        </summary>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          {[
+            ["waistCm", "Cintura (cm)"],
+            ["hipCm", "Cadera (cm)"],
+            ["armCm", "Brazo (cm)"],
+            ["thighCm", "Muslo (cm)"],
+            ["calfCm", "Pantorrilla (cm)"],
+            ["tricepsMm", "Pliegue tríceps (mm)"],
+            ["subscapularMm", "Pliegue subescapular (mm)"],
+            ["suprailiacMm", "Pliegue suprailiaco (mm)"],
+            ["abdominalMm", "Pliegue abdominal (mm)"],
+          ].map(([name, label]) => (
+            <div key={name}>
+              <label className="field-label" htmlFor={name}>
+                {label}
+              </label>
+              <input
+                className="field-input"
+                id={name}
+                name={name}
+                min="0"
+                step="0.1"
+                type="number"
+              />
+              {state.errors?.[name]?.[0] && (
+                <p className="mt-1 text-xs text-[var(--danger)]">
+                  {state.errors[name][0]}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-xs leading-5 text-[var(--text-muted)]">
+          La relación cintura-cadera se calcula cuando ambas medidas están
+          presentes. Los pliegues se conservan como mediciones directas.
+        </p>
+      </details>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div>
           <label className="field-label" htmlFor="weightKg">

@@ -4,10 +4,15 @@ import { notFound } from "next/navigation";
 import { Icon } from "@/components/icon";
 import { getPatient } from "@/features/patients/data";
 import { MeasurementForm } from "@/features/patients/measurement-form";
+import { ProgressChart } from "@/features/patients/progress-chart";
 import {
   bmiLabels,
   type BmiClassification,
 } from "@/lib/nutrition/anthropometry";
+import {
+  energyFormulaLabels,
+  type EnergyFormula,
+} from "@/lib/nutrition/energy";
 
 export const metadata = { title: "Expediente del paciente" };
 
@@ -97,7 +102,15 @@ export default async function PatientPage({
           {record.canViewClinical ? (
             <>
               <section className="panel p-5 sm:p-6">
-                <h2 className="text-base font-semibold">Contexto clínico</h2>
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="text-base font-semibold">Contexto clínico</h2>
+                  <Link
+                    className="button-secondary"
+                    href={`/pacientes/${id}/historia`}
+                  >
+                    Historia clínica
+                  </Link>
+                </div>
                 <dl className="mt-5 space-y-5">
                   <div>
                     <dt className="text-xs text-[var(--text-faint)]">
@@ -120,6 +133,140 @@ export default async function PatientPage({
               <section className="panel">
                 <div className="panel-header">
                   <div>
+                    <h2 className="panel-title">Consultas clínicas</h2>
+                    <p className="panel-description">
+                      Notas SOAP y seguimiento nutricional del paciente.
+                    </p>
+                  </div>
+                  <Link
+                    className="button-secondary"
+                    href={`/pacientes/${id}/consultas/nueva`}
+                  >
+                    Nueva consulta
+                  </Link>
+                </div>
+                {record.consultations.length ? (
+                  <div className="divide-y divide-[var(--line)]">
+                    {record.consultations.map((consultation) => (
+                      <Link
+                        className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-[var(--surface-muted)] sm:px-6"
+                        href={`/pacientes/${id}/consultas/${consultation.id}`}
+                        key={consultation.id}
+                      >
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold">
+                            {consultation.consultation_type === "initial"
+                              ? "Consulta inicial"
+                              : "Seguimiento"}
+                          </p>
+                          <p className="mt-1 truncate text-xs text-[var(--text-muted)]">
+                            {consultation.clinical_summary ||
+                              "Sin resumen clínico todavía"}
+                          </p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-xs text-[var(--text-muted)]">
+                            {dateFormat.format(
+                              new Date(consultation.occurred_at),
+                            )}
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-[var(--brand-700)]">
+                            {consultation.status === "draft"
+                              ? "En curso"
+                              : "Finalizada"}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-6 py-10 text-center">
+                    <p className="text-sm text-[var(--text-muted)]">
+                      Aún no hay consultas clínicas registradas.
+                    </p>
+                    <Link
+                      className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-700)] hover:underline"
+                      href={`/pacientes/${id}/consultas/nueva`}
+                    >
+                      Abrir la primera consulta
+                    </Link>
+                  </div>
+                )}
+              </section>
+              <section className="panel">
+                <div className="panel-header">
+                  <div>
+                    <h2 className="panel-title">Cálculos nutricionales</h2>
+                    <p className="panel-description">
+                      Estimaciones versionadas de energía y macronutrientes.
+                    </p>
+                  </div>
+                  {latest && record.patient.growth_reference_sex && (
+                    <Link
+                      className="button-secondary"
+                      href={`/pacientes/${id}/calculos/nuevo`}
+                    >
+                      Nuevo cálculo
+                    </Link>
+                  )}
+                </div>
+                {record.energyCalculations.length ? (
+                  <div className="divide-y divide-[var(--line)]">
+                    {record.energyCalculations.map((calculation) => (
+                      <Link
+                        className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-[var(--surface-muted)] sm:px-6"
+                        href={`/pacientes/${id}/calculos/${calculation.id}`}
+                        key={calculation.id}
+                      >
+                        <div>
+                          <p className="text-sm font-semibold">
+                            {
+                              energyFormulaLabels[
+                                calculation.formula as EnergyFormula
+                              ]
+                            }
+                          </p>
+                          <p className="mt-1 text-xs text-[var(--text-muted)]">
+                            P {calculation.target_protein_g} g · C{" "}
+                            {calculation.target_carbohydrate_g} g · G{" "}
+                            {calculation.target_fat_g} g
+                          </p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-sm font-semibold text-[var(--brand-700)]">
+                            {calculation.target_energy_kcal} kcal
+                          </p>
+                          <p className="mt-1 text-xs text-[var(--text-faint)]">
+                            {dateFormat.format(
+                              new Date(calculation.created_at),
+                            )}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-6 py-9 text-center">
+                    <p className="text-sm text-[var(--text-muted)]">
+                      {latest && record.patient.growth_reference_sex
+                        ? "Aún no hay cálculos guardados."
+                        : "Registra peso, talla y sexo de referencia para calcular."}
+                    </p>
+                    {latest && record.patient.growth_reference_sex && (
+                      <Link
+                        className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-700)] hover:underline"
+                        href={`/pacientes/${id}/calculos/nuevo`}
+                      >
+                        Crear el primer cálculo
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </section>
+              <ProgressChart measurements={record.measurements} />
+              <section className="panel">
+                <div className="panel-header">
+                  <div>
                     <h2 className="panel-title">Historial antropométrico</h2>
                     <p className="panel-description">
                       Cada medición queda conservada como registro clínico.
@@ -139,6 +286,7 @@ export default async function PatientPage({
                           <th className="px-4 py-3 font-medium">Peso</th>
                           <th className="px-4 py-3 font-medium">Talla</th>
                           <th className="px-4 py-3 font-medium">IMC</th>
+                          <th className="px-4 py-3 font-medium">Cintura</th>
                           <th className="px-4 py-3 font-medium">
                             Clasificación
                           </th>
@@ -153,6 +301,9 @@ export default async function PatientPage({
                             <td className="px-4 py-4">{m.weight_kg} kg</td>
                             <td className="px-4 py-4">{m.height_cm} cm</td>
                             <td className="px-4 py-4 font-semibold">{m.bmi}</td>
+                            <td className="px-4 py-4">
+                              {m.waist_cm == null ? "—" : `${m.waist_cm} cm`}
+                            </td>
                             <td className="px-4 py-4">
                               {
                                 bmiLabels[

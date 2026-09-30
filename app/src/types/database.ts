@@ -27,9 +27,159 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      consultations: {
+        Row: {
+          assessment: string | null;
+          clinical_summary: string | null;
+          completed_at: string | null;
+          completed_by: string | null;
+          consultation_type: Database["public"]["Enums"]["consultation_type"];
+          created_at: string;
+          created_by: string;
+          id: string;
+          objective: string | null;
+          occurred_at: string;
+          organization_id: string;
+          patient_id: string;
+          plan: string | null;
+          status: Database["public"]["Enums"]["consultation_status"];
+          subjective: string | null;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      dietary_histories: {
+        Row: {
+          created_at: string;
+          eating_habits: string | null;
+          organization_id: string;
+          patient_id: string;
+          physical_activity: string | null;
+          preferences: string | null;
+          recall_24h: string | null;
+          restrictions: string | null;
+          sleep_hours: number | null;
+          updated_at: string;
+          updated_by: string;
+          water_liters: number | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      energy_calculations: {
+        Row: {
+          activity_factor: number;
+          age_years_snapshot: number;
+          carbohydrate_input: number;
+          created_at: string;
+          created_by: string;
+          fat_input: number;
+          formula: Database["public"]["Enums"]["energy_formula"];
+          formula_version: string;
+          goal_adjustment_kcal: number;
+          height_cm_snapshot: number;
+          id: string;
+          macro_energy_kcal: number;
+          macro_method: Database["public"]["Enums"]["macro_distribution_method"];
+          measurement_id: string;
+          organization_id: string;
+          patient_id: string;
+          protein_input: number;
+          reference_sex: Database["public"]["Enums"]["growth_reference_sex"];
+          resting_energy_kcal: number;
+          target_carbohydrate_g: number;
+          target_energy_kcal: number;
+          target_fat_g: number;
+          target_protein_g: number;
+          total_energy_kcal: number;
+          weight_kg_snapshot: number;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      lab_results: {
+        Row: {
+          collected_on: string;
+          created_at: string;
+          id: string;
+          notes: string | null;
+          organization_id: string;
+          patient_id: string;
+          recorded_by: string;
+          reference_max: number | null;
+          reference_min: number | null;
+          result_value: number;
+          test_name: string;
+          unit: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      meal_plan_items: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          deleted_at: string | null;
+          food_name: string;
+          guidance: string | null;
+          id: string;
+          meal_id: string;
+          meal_plan_id: string;
+          organization_id: string;
+          quantity: number;
+          sort_order: number;
+          unit: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      meal_plan_meals: {
+        Row: {
+          created_at: string;
+          id: string;
+          meal_plan_id: string;
+          name: string;
+          organization_id: string;
+          sort_order: number;
+          suggested_time: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      meal_plans: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          ends_on: string | null;
+          id: string;
+          instructions: string | null;
+          name: string;
+          organization_id: string;
+          patient_id: string;
+          starts_on: string | null;
+          status: Database["public"]["Enums"]["meal_plan_status"];
+          target_carbohydrate_g: number | null;
+          target_energy_kcal: number | null;
+          target_fat_g: number | null;
+          target_protein_g: number | null;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       anthropometric_measurements: {
         Row: {
+          abdominal_skinfold_mm: number | null;
           age_years_snapshot: number;
+          arm_cm: number | null;
           bmi: number;
           bmi_classification: Database["public"]["Enums"]["adult_bmi_classification"];
           created_at: string;
@@ -40,9 +190,17 @@ export type Database = {
           measured_at: string;
           normal_weight_max_kg: number;
           normal_weight_min_kg: number;
+          calf_cm: number | null;
+          hip_cm: number | null;
           organization_id: string;
           patient_id: string;
           recorded_by: string;
+          subscapular_skinfold_mm: number | null;
+          suprailiac_skinfold_mm: number | null;
+          thigh_cm: number | null;
+          triceps_skinfold_mm: number | null;
+          waist_cm: number | null;
+          waist_hip_ratio: number | null;
           weight_kg: number;
           weight_lb: number;
         };
@@ -193,6 +351,23 @@ export type Database = {
         };
         Relationships: [];
       };
+      patient_health_histories: {
+        Row: {
+          allergies: string | null;
+          created_at: string;
+          diagnoses: string | null;
+          family_history: string | null;
+          medical_history: string | null;
+          medications: string | null;
+          organization_id: string;
+          patient_id: string;
+          updated_at: string;
+          updated_by: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       patient_consents: {
         Row: {
           accepted_at: string;
@@ -230,6 +405,25 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["patients"]["Row"]>;
         Relationships: [];
       };
+      payments: {
+        Row: {
+          amount_centavos: number;
+          appointment_id: string | null;
+          created_at: string;
+          external_reference: string | null;
+          id: string;
+          method: Database["public"]["Enums"]["payment_method"];
+          organization_id: string;
+          paid_at: string | null;
+          patient_id: string;
+          recorded_by: string;
+          status: Database["public"]["Enums"]["payment_status"];
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       profiles: {
         Row: {
           created_at: string;
@@ -260,12 +454,62 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      add_meal_plan_item: {
+        Args: {
+          item_food_name: string;
+          item_guidance: string | null;
+          item_quantity: number;
+          item_unit: string;
+          target_meal_id: string;
+        };
+        Returns: string;
+      };
       change_appointment_status: {
         Args: {
           next_status: Database["public"]["Enums"]["appointment_status"];
           target_appointment_id: string;
         };
         Returns: undefined;
+      };
+      change_meal_plan_status: {
+        Args: {
+          next_status: Database["public"]["Enums"]["meal_plan_status"];
+          target_plan_id: string;
+        };
+        Returns: undefined;
+      };
+      change_payment_status: {
+        Args: {
+          next_status: Database["public"]["Enums"]["payment_status"];
+          target_payment_id: string;
+        };
+        Returns: undefined;
+      };
+      complete_consultation: {
+        Args: { target_consultation_id: string };
+        Returns: undefined;
+      };
+      create_consultation: {
+        Args: {
+          consultation_time: string;
+          requested_type: Database["public"]["Enums"]["consultation_type"];
+          target_patient_id: string;
+        };
+        Returns: string;
+      };
+      create_energy_calculation: {
+        Args: {
+          selected_activity_factor: number;
+          selected_carbohydrate: number;
+          selected_fat: number;
+          selected_formula: Database["public"]["Enums"]["energy_formula"];
+          selected_goal_adjustment_kcal: number;
+          selected_macro_method: Database["public"]["Enums"]["macro_distribution_method"];
+          selected_protein: number;
+          source_measurement_id: string;
+          target_patient_id: string;
+        };
+        Returns: string;
       };
       create_appointment: {
         Args: {
@@ -274,6 +518,20 @@ export type Database = {
           local_start: string;
           target_patient_id: string;
           target_professional_user_id: string;
+        };
+        Returns: string;
+      };
+      create_meal_plan: {
+        Args: {
+          carbohydrate_g: number | null;
+          energy_kcal: number | null;
+          fat_g: number | null;
+          plan_ends_on: string | null;
+          plan_instructions: string | null;
+          plan_name: string;
+          plan_starts_on: string | null;
+          protein_g: number | null;
+          target_patient_id: string;
         };
         Returns: string;
       };
@@ -297,6 +555,17 @@ export type Database = {
         };
         Returns: string;
       };
+      create_payment: {
+        Args: {
+          payment_amount_centavos: number;
+          payment_date: string;
+          payment_method: Database["public"]["Enums"]["payment_method"];
+          payment_reference: string | null;
+          payment_status: Database["public"]["Enums"]["payment_status"];
+          target_patient_id: string;
+        };
+        Returns: string;
+      };
       record_adult_anthropometry: {
         Args: {
           measured_height_cm: number;
@@ -306,13 +575,102 @@ export type Database = {
         };
         Returns: string;
       };
+      record_extended_adult_anthropometry: {
+        Args: {
+          measured_abdominal_mm: number | null;
+          measured_arm_cm: number | null;
+          measured_calf_cm: number | null;
+          measured_height_cm: number;
+          measured_hip_cm: number | null;
+          measured_subscapular_mm: number | null;
+          measured_suprailiac_mm: number | null;
+          measured_thigh_cm: number | null;
+          measured_triceps_mm: number | null;
+          measured_waist_cm: number | null;
+          measured_weight_kg: number;
+          target_patient_id: string;
+        };
+        Returns: string;
+      };
       record_clinical_read: {
         Args: { target_entity_type: string; target_patient_id: string };
+        Returns: undefined;
+      };
+      record_consultation_read: {
+        Args: { target_consultation_id: string };
+        Returns: undefined;
+      };
+      record_energy_calculation_read: {
+        Args: { target_calculation_id: string };
+        Returns: undefined;
+      };
+      record_meal_plan_read: {
+        Args: { target_plan_id: string };
+        Returns: undefined;
+      };
+      record_lab_result: {
+        Args: {
+          laboratory_collected_on: string;
+          laboratory_notes: string | null;
+          laboratory_reference_max: number | null;
+          laboratory_reference_min: number | null;
+          laboratory_result_value: number;
+          laboratory_test_name: string;
+          laboratory_unit: string;
+          target_patient_id: string;
+        };
+        Returns: string;
+      };
+      remove_meal_plan_item: {
+        Args: { target_item_id: string };
+        Returns: undefined;
+      };
+      update_meal_plan_item: {
+        Args: {
+          item_food_name: string;
+          item_guidance: string | null;
+          item_quantity: number;
+          item_unit: string;
+          target_item_id: string;
+        };
+        Returns: undefined;
+      };
+      update_consultation_draft: {
+        Args: {
+          note_assessment: string | null;
+          note_clinical_summary: string | null;
+          note_objective: string | null;
+          note_plan: string | null;
+          note_subjective: string | null;
+          target_consultation_id: string;
+        };
+        Returns: undefined;
+      };
+      save_patient_histories: {
+        Args: {
+          dietary_eating_habits: string | null;
+          dietary_physical_activity: string | null;
+          dietary_preferences: string | null;
+          dietary_recall_24h: string | null;
+          dietary_restrictions: string | null;
+          dietary_sleep_hours: number | null;
+          dietary_water_liters: number | null;
+          history_allergies: string | null;
+          history_diagnoses: string | null;
+          history_family: string | null;
+          history_medical: string | null;
+          history_medications: string | null;
+          target_patient_id: string;
+        };
         Returns: undefined;
       };
       list_appointments_for_local_date: {
         Args: { target_date: string; target_organization_id: string };
         Returns: Database["public"]["Tables"]["appointments"]["Row"][];
+      };
+      list_payments_for_local_month: {
+        Args: { target_month: string; target_organization_id: string };
+        Returns: Database["public"]["Tables"]["payments"]["Row"][];
       };
       list_scheduling_professionals: {
         Args: { target_organization_id: string };
@@ -342,9 +700,17 @@ export type Database = {
         | "no_show"
         | "cancelled"
         | "rescheduled";
+      consultation_status: "draft" | "completed";
+      consultation_type: "initial" | "follow_up";
+      energy_formula:
+        "mifflin_st_jeor" | "harris_benedict_revised" | "fao_who_unu";
       growth_reference_sex: "female" | "male";
+      macro_distribution_method: "percentage" | "grams_per_kg";
       membership_status: "invited" | "active" | "suspended";
+      meal_plan_status: "draft" | "active" | "archived";
       patient_status: "active" | "inactive" | "archived";
+      payment_method: "cash" | "card" | "transfer" | "other";
+      payment_status: "pending" | "paid" | "voided" | "refunded";
     };
     CompositeTypes: { [_ in never]: never };
   };

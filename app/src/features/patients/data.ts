@@ -38,30 +38,51 @@ export async function getPatient(patientId: string) {
       clinical: null,
       consent: null,
       measurements: [],
+      consultations: [],
+      energyCalculations: [],
       canViewClinical,
     };
 
-  const [{ data: clinical }, { data: consent }, { data: measurements }] =
-    await Promise.all([
-      supabase
-        .from("patient_clinical_profiles")
-        .select("goal, consultation_reason")
-        .eq("patient_id", patientId)
-        .maybeSingle(),
-      supabase
-        .from("patient_consents")
-        .select("accepted_at, consent_version, withdrawn_at")
-        .eq("patient_id", patientId)
-        .is("withdrawn_at", null)
-        .order("accepted_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from("anthropometric_measurements")
-        .select("*")
-        .eq("patient_id", patientId)
-        .order("measured_at", { ascending: false }),
-    ]);
+  const [
+    { data: clinical },
+    { data: consent },
+    { data: measurements },
+    { data: consultations },
+    { data: energyCalculations },
+  ] = await Promise.all([
+    supabase
+      .from("patient_clinical_profiles")
+      .select("goal, consultation_reason")
+      .eq("patient_id", patientId)
+      .maybeSingle(),
+    supabase
+      .from("patient_consents")
+      .select("accepted_at, consent_version, withdrawn_at")
+      .eq("patient_id", patientId)
+      .is("withdrawn_at", null)
+      .order("accepted_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("anthropometric_measurements")
+      .select("*")
+      .eq("patient_id", patientId)
+      .order("measured_at", { ascending: false }),
+    supabase
+      .from("consultations")
+      .select(
+        "id, consultation_type, status, occurred_at, clinical_summary, updated_at",
+      )
+      .eq("patient_id", patientId)
+      .order("occurred_at", { ascending: false }),
+    supabase
+      .from("energy_calculations")
+      .select(
+        "id, formula, target_energy_kcal, target_protein_g, target_carbohydrate_g, target_fat_g, created_at",
+      )
+      .eq("patient_id", patientId)
+      .order("created_at", { ascending: false }),
+  ]);
 
   await Promise.all([
     supabase.rpc("record_clinical_read", {
@@ -72,6 +93,14 @@ export async function getPatient(patientId: string) {
       target_patient_id: patientId,
       target_entity_type: "anthropometric_measurements",
     }),
+    supabase.rpc("record_clinical_read", {
+      target_patient_id: patientId,
+      target_entity_type: "consultations",
+    }),
+    supabase.rpc("record_clinical_read", {
+      target_patient_id: patientId,
+      target_entity_type: "energy_calculations",
+    }),
   ]);
 
   return {
@@ -79,6 +108,8 @@ export async function getPatient(patientId: string) {
     clinical,
     consent,
     measurements: measurements ?? [],
+    consultations: consultations ?? [],
+    energyCalculations: energyCalculations ?? [],
     canViewClinical,
   };
 }

@@ -9,8 +9,8 @@ const navigation: Array<{ label: string; icon: IconName; href?: string }> = [
   { label: "Inicio", icon: "dashboard", href: "/dashboard" },
   { label: "Agenda", icon: "calendar", href: "/agenda" },
   { label: "Pacientes", icon: "patients", href: "/pacientes" },
-  { label: "Planes", icon: "clipboard" },
-  { label: "Pagos", icon: "payments" },
+  { label: "Planes", icon: "clipboard", href: "/planes" },
+  { label: "Pagos", icon: "payments", href: "/pagos" },
   { label: "Configuración", icon: "settings" },
 ];
 

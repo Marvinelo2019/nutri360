@@ -83,16 +83,34 @@ export async function recordMeasurementAction(
     patientId: formData.get("patientId"),
     weightKg: formData.get("weightKg"),
     heightCm: formData.get("heightCm"),
+    waistCm: formData.get("waistCm"),
+    hipCm: formData.get("hipCm"),
+    armCm: formData.get("armCm"),
+    thighCm: formData.get("thighCm"),
+    calfCm: formData.get("calfCm"),
+    tricepsMm: formData.get("tricepsMm"),
+    subscapularMm: formData.get("subscapularMm"),
+    suprailiacMm: formData.get("suprailiacMm"),
+    abdominalMm: formData.get("abdominalMm"),
   });
   if (!parsed.success) {
     return { status: "error", errors: parsed.error.flatten().fieldErrors };
   }
 
   const supabase = await createServerSupabaseClient();
-  const { error } = await supabase.rpc("record_adult_anthropometry", {
+  const { error } = await supabase.rpc("record_extended_adult_anthropometry", {
     target_patient_id: parsed.data.patientId,
     measured_weight_kg: parsed.data.weightKg,
     measured_height_cm: parsed.data.heightCm,
+    measured_waist_cm: parsed.data.waistCm ?? null,
+    measured_hip_cm: parsed.data.hipCm ?? null,
+    measured_arm_cm: parsed.data.armCm ?? null,
+    measured_thigh_cm: parsed.data.thighCm ?? null,
+    measured_calf_cm: parsed.data.calfCm ?? null,
+    measured_triceps_mm: parsed.data.tricepsMm ?? null,
+    measured_subscapular_mm: parsed.data.subscapularMm ?? null,
+    measured_suprailiac_mm: parsed.data.suprailiacMm ?? null,
+    measured_abdominal_mm: parsed.data.abdominalMm ?? null,
   });
   if (error) {
     return {

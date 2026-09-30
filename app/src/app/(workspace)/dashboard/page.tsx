@@ -3,7 +3,9 @@ import Link from "next/link";
 import { Icon, type IconName } from "@/components/icon";
 import { getDailyAgenda } from "@/features/appointments/data";
 import { appointmentModalityLabels } from "@/features/appointments/presentation";
+import { getActiveMealPlanCount } from "@/features/meal-plans/data";
 import { getPatientCount } from "@/features/patients/data";
+import { getMonthlyPaymentSummary } from "@/features/payments/data";
 import { requireWorkspace } from "@/lib/auth/session";
 import {
   formatClinicDate,
@@ -40,11 +42,14 @@ const baseMetrics: Array<{
 ];
 
 export default async function DashboardPage() {
-  const { fullName } = await requireWorkspace();
-  const [patientCount, todayAppointments] = await Promise.all([
-    getPatientCount(),
-    getDailyAgenda(),
-  ]);
+  const { fullName, workspace } = await requireWorkspace();
+  const [patientCount, todayAppointments, activePlanCount, paymentSummary] =
+    await Promise.all([
+      getPatientCount(),
+      getDailyAgenda(),
+      getActiveMealPlanCount(),
+      getMonthlyPaymentSummary(),
+    ]);
   const activeTodayAppointments = todayAppointments.filter(
     (appointment) => !["cancelled", "rescheduled"].includes(appointment.status),
   );
@@ -63,7 +68,20 @@ export default async function DashboardPage() {
       note: patientCount ? "Expedientes vigentes" : "Aún sin registros",
       icon: "patients" as IconName,
     },
-    ...baseMetrics.slice(1),
+    {
+      ...baseMetrics[1],
+      value: String(activePlanCount),
+      note:
+        workspace.role === "assistant"
+          ? "Acceso clínico restringido"
+          : activePlanCount
+            ? "Planes vigentes"
+            : "Aún sin planes",
+    },
+    {
+      ...baseMetrics[2],
+      value: formatCurrency(paymentSummary.paidCentavos),
+    },
   ];
 
   return (
