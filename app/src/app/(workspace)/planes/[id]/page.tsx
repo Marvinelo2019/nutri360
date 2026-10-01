@@ -6,6 +6,7 @@ import { getMealPlan } from "@/features/meal-plans/data";
 import { MealItemForm } from "@/features/meal-plans/meal-item-form";
 import { MealItemRow } from "@/features/meal-plans/meal-item-row";
 import { calculateEquivalentTotals } from "@/lib/nutrition/equivalents";
+import { SavePlanTemplateForm } from "@/features/meal-plan-templates/template-forms";
 
 export const metadata = { title: "Detalle del plan" };
 const statusLabels = {
@@ -193,6 +194,17 @@ export default async function MealPlanPage({
           </section>
         ))}
       </div>
+      {itemCount > 0 && (
+        <section className="panel mt-6 p-5 sm:p-6">
+          <p className="eyebrow">Reutilizar estructura</p>
+          <h2 className="mt-2 text-lg font-semibold">Guardar como plantilla</h2>
+          <p className="mb-5 mt-1 text-sm leading-6 text-[var(--text-muted)]">
+            Se copiarán tiempos, alimentos, equivalentes, objetivos e
+            indicaciones, pero ningún dato del paciente.
+          </p>
+          <SavePlanTemplateForm defaultName={record.plan.name} planId={id} />
+        </section>
+      )}
     </div>
   );
 }

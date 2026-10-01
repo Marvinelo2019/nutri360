@@ -4,7 +4,7 @@ Last updated: 2026-09-30.
 
 ## Current checkpoint
 
-The public-booking increment is complete locally and validated by the user in the browser. The local Supabase migration `20260930003200_public_booking.sql` is applied. The food-groups/equivalents and prior clinical-planning work remain preserved in Git checkpoints.
+The public-booking and reusable meal-plan template increments are complete, browser-validated, and preserved in Git checkpoints. Migration `20260930003300_meal_plan_templates.sql` is applied locally.
 
 Individual-food work remains intentionally paused. The user is consulting a nutritionist to validate the regional data source and professional workflow; do not invent or seed nutritional values while this decision is pending.
 
@@ -21,21 +21,22 @@ Individual-food work remains intentionally paused. The user is consulting a nutr
 - Organization-configurable food groups, equivalent nutrient snapshots on draft plan items, and estimated plan totals.
 - Configurable professional availability, one-off agenda blocks, and an enableable public booking link.
 - Mobile public slot selection with minimal patient contact data, pending appointment creation, versioned privacy consent, conflict protection, and durable HMAC-based rate limiting.
+- Organization-owned meal-plan templates that snapshot meal structure, items, equivalents, targets, and instructions without patient identity, then create independent patient-specific drafts.
 
 ## Verification
 
-- Application: 18 test files and 50 tests pass.
-- Database: 10 pgTAP files and 245 tests pass.
+- Application: 19 test files and 52 tests pass.
+- Database: 11 pgTAP files and 278 tests pass.
 - ESLint, strict TypeScript, Prettier check, production build, and Supabase database lint pass.
 
 ## Important repository state
 
-The completed and browser-validated public-booking increment is preserved in the latest checkpoint on `main`. The completed food-groups/equivalents increment remains preserved in the prior feature checkpoint; the precise food-data research pause is preserved in its following documentation checkpoint.
+The completed and browser-validated public-booking and reusable meal-plan template increments are preserved in consecutive feature checkpoints on `main`.
 
 ## Recommended next work
 
 1. Review the nutritionist's response and select a regional food-data source before adding individual foods.
-2. Add reusable meal-plan templates and private branded PDF generation.
+2. Add private branded PDF generation for meal plans.
 3. Continue appointments with reminders or Google Calendar synchronization.
 
 ## Pending professional validation

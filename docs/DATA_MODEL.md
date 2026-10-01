@@ -40,7 +40,8 @@ Store timestamps in UTC and render them using the organization's time zone. Stor
 - `meal_plans`: patient, targets, status, version, validity, and generated PDF object path.
 - `meal_plan_meals`: meal time, ordering, and option number.
 - `meal_plan_items`: meal option, food, quantity, unit, and optional immutable food-group/equivalent nutrient snapshot.
-- `meal_plan_templates`: reusable organization-owned plan structure.
+- `meal_plan_templates`: reusable organization-owned snapshot of plan targets and general instructions, with source-plan provenance but no patient identity.
+- `meal_plan_template_meals` and `meal_plan_template_items`: independent meal, food, guidance, and equivalent snapshots used to create new patient-specific drafts.
 
 ### Operations
 

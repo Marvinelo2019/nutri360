@@ -202,6 +202,66 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      meal_plan_template_items: {
+        Row: {
+          created_at: string;
+          equivalent_carbohydrate_g: number | null;
+          equivalent_count: number | null;
+          equivalent_energy_kcal: number | null;
+          equivalent_fat_g: number | null;
+          equivalent_protein_g: number | null;
+          food_group_id: string | null;
+          food_group_name_snapshot: string | null;
+          food_name: string;
+          guidance: string | null;
+          id: string;
+          organization_id: string;
+          quantity: number;
+          sort_order: number;
+          template_id: string;
+          template_meal_id: string;
+          unit: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      meal_plan_template_meals: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          organization_id: string;
+          sort_order: number;
+          suggested_time: string | null;
+          template_id: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      meal_plan_templates: {
+        Row: {
+          category: string | null;
+          created_at: string;
+          created_by: string;
+          description: string | null;
+          id: string;
+          instructions: string | null;
+          is_active: boolean;
+          name: string;
+          organization_id: string;
+          source_plan_id: string;
+          target_carbohydrate_g: number | null;
+          target_energy_kcal: number | null;
+          target_fat_g: number | null;
+          target_protein_g: number | null;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       meal_plan_meals: {
         Row: {
           created_at: string;
@@ -556,6 +616,10 @@ export type Database = {
         };
         Returns: string;
       };
+      archive_meal_plan_template: {
+        Args: { target_template_id: string };
+        Returns: undefined;
+      };
       change_appointment_status: {
         Args: {
           next_status: Database["public"]["Enums"]["appointment_status"];
@@ -670,6 +734,25 @@ export type Database = {
         };
         Returns: string;
       };
+      create_meal_plan_from_template: {
+        Args: {
+          plan_ends_on: string | null;
+          plan_name: string;
+          plan_starts_on: string | null;
+          target_patient_id: string;
+          target_template_id: string;
+        };
+        Returns: string;
+      };
+      create_meal_plan_template_from_plan: {
+        Args: {
+          target_plan_id: string;
+          template_category: string | null;
+          template_description: string | null;
+          template_name: string;
+        };
+        Returns: string;
+      };
       create_organization: {
         Args: { organization_name: string; organization_slug: string };
         Returns: string;
@@ -777,6 +860,10 @@ export type Database = {
       };
       record_meal_plan_read: {
         Args: { target_plan_id: string };
+        Returns: undefined;
+      };
+      record_meal_plan_template_read: {
+        Args: { target_template_id: string };
         Returns: undefined;
       };
       record_lab_result: {

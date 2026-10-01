@@ -41,10 +41,15 @@ export default async function MealPlansPage() {
             Construye y conserva las versiones del plan de cada paciente.
           </p>
         </div>
-        <Link className="button-primary" href="/planes/nuevo">
-          <Icon name="plus" className="size-4" />
-          Nuevo plan
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link className="button-secondary min-h-12" href="/plantillas">
+            Plantillas
+          </Link>
+          <Link className="button-primary" href="/planes/nuevo">
+            <Icon name="plus" className="size-4" />
+            Nuevo plan
+          </Link>
+        </div>
       </div>
       <section className="panel mt-7">
         {plans.length ? (
