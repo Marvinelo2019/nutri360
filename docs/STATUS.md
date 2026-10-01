@@ -4,7 +4,7 @@ Last updated: 2026-09-30.
 
 ## Current checkpoint
 
-Public booking, reusable meal-plan templates, and private branded meal-plan PDF generation are complete, browser-validated, and preserved in Git checkpoints. Migration `20260930003400_branded_meal_plan_pdfs.sql` is applied locally.
+Public booking, reusable meal-plan templates, private branded meal-plan PDF generation, and the provider-neutral appointment reminder center are complete and browser-validated. Migration `20260930003500_appointment_reminders.sql` is applied locally.
 
 Individual-food work remains intentionally paused. The user is consulting a nutritionist to validate the regional data source and professional workflow; do not invent or seed nutritional values while this decision is pending.
 
@@ -23,22 +23,24 @@ Individual-food work remains intentionally paused. The user is consulting a nutr
 - Mobile public slot selection with minimal patient contact data, pending appointment creation, versioned privacy consent, conflict protection, and durable HMAC-based rate limiting.
 - Organization-owned meal-plan templates that snapshot meal structure, items, equivalents, targets, and instructions without patient identity, then create independent patient-specific drafts.
 - Owner-managed clinic identity and private, audited two-page meal-plan PDFs generated only from immutable plans.
+- Automatic appointment confirmation, 24-hour, and 2-hour reminder scheduling with configurable channel, cancellation, missing-contact visibility, idempotent worker leases, bounded retries, and immutable attempt history.
+- An Agenda reminder center that clearly distinguishes queued, sent, cancelled, failed, and contact-blocked jobs. Live delivery remains disabled until a messaging provider is selected and configured.
 
 ## Verification
 
-- Application: 21 test files and 58 tests pass.
-- Database: 12 pgTAP files and 309 tests pass.
+- Application: 22 test files and 60 tests pass.
+- Database: 13 pgTAP files and 346 tests pass.
 - ESLint, strict TypeScript, Prettier check, production build, and Supabase database lint pass.
 
 ## Important repository state
 
-The completed and browser-validated public-booking, reusable-template, and branded PDF increments are preserved in consecutive feature checkpoints on `main`.
+The completed and browser-validated public-booking, reusable-template, branded PDF, and appointment-reminder increments are preserved in consecutive feature checkpoints on `main`.
 
 ## Recommended next work
 
 1. Review the nutritionist's response and select a regional food-data source before adding individual foods.
-2. Continue appointments with reminders or Google Calendar synchronization.
-3. Add patient-portal access to the current plan when phase 4 begins.
+2. Choose the first live reminder channel and provider before enabling outbound messages.
+3. Continue appointments with Google Calendar synchronization or add patient-portal access when phase 4 begins.
 
 ## Pending professional validation
 

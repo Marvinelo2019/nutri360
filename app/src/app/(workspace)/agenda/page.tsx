@@ -58,6 +58,12 @@ export default async function AgendaPage({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link
+            className="button-secondary min-h-12"
+            href="/agenda/recordatorios"
+          >
+            Recordatorios
+          </Link>
           {workspace.role !== "assistant" && (
             <Link
               className="button-secondary min-h-12"

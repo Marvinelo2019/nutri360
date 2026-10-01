@@ -594,6 +594,62 @@ export type Database = {
         };
         Relationships: [];
       };
+      reminder_settings: {
+        Row: {
+          confirmation_enabled: boolean;
+          created_at: string;
+          max_attempts: number;
+          organization_id: string;
+          preferred_channel: Database["public"]["Enums"]["reminder_channel"];
+          reminder_24h_enabled: boolean;
+          reminder_2h_enabled: boolean;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      appointment_reminders: {
+        Row: {
+          appointment_id: string;
+          attempt_count: number;
+          channel: Database["public"]["Enums"]["reminder_channel"];
+          created_at: string;
+          id: string;
+          idempotency_key: string;
+          kind: Database["public"]["Enums"]["reminder_kind"];
+          last_error_code: string | null;
+          locked_at: string | null;
+          locked_by: string | null;
+          max_attempts: number;
+          next_attempt_at: string;
+          organization_id: string;
+          provider_message_id: string | null;
+          scheduled_at: string;
+          sent_at: string | null;
+          status: Database["public"]["Enums"]["reminder_status"];
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      reminder_delivery_attempts: {
+        Row: {
+          attempt_number: number;
+          attempted_at: string;
+          error_code: string | null;
+          id: number;
+          organization_id: string;
+          outcome: Database["public"]["Enums"]["reminder_attempt_outcome"];
+          provider: string;
+          provider_message_id: string | null;
+          reminder_id: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: {
@@ -1011,6 +1067,16 @@ export type Database = {
         };
         Returns: undefined;
       };
+      save_reminder_settings: {
+        Args: {
+          enable_24h: boolean;
+          enable_2h: boolean;
+          enable_confirmation: boolean;
+          reminder_channel: Database["public"]["Enums"]["reminder_channel"];
+          target_organization_id: string;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       adult_bmi_classification:
@@ -1042,6 +1108,11 @@ export type Database = {
       patient_status: "active" | "inactive" | "archived";
       payment_method: "cash" | "card" | "transfer" | "other";
       payment_status: "pending" | "paid" | "voided" | "refunded";
+      reminder_attempt_outcome: "sent" | "failed";
+      reminder_channel: "whatsapp" | "sms" | "email";
+      reminder_kind: "confirmation" | "reminder_24h" | "reminder_2h";
+      reminder_status:
+        "queued" | "processing" | "sent" | "failed" | "blocked" | "cancelled";
     };
     CompositeTypes: { [_ in never]: never };
   };

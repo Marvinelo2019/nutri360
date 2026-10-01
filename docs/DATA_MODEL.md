@@ -50,7 +50,9 @@ Store timestamps in UTC and render them using the organization's time zone. Stor
 - `availability_rules` and `availability_blocks`: professional recurring schedules and timezone-aware exceptions.
 - `public_booking_rate_limits`: short-lived HMAC request counters without raw network identifiers.
 - Public appointments snapshot their booking source and privacy-consent version; anonymously created administrative patients and appointments have no authenticated `created_by` actor.
-- `reminders`: appointment, channel, scheduled time, state, attempt count, and provider ID.
+- `reminder_settings`: organization channel preference and enablement for confirmation, 24-hour, and 2-hour notices.
+- `appointment_reminders`: provider-neutral appointment jobs with explicit schedule, bounded attempts, lease state, idempotency key, normalized error, and provider message ID; patient contact data and rendered messages are not copied into the queue.
+- `reminder_delivery_attempts`: immutable outcome ledger for each provider delivery attempt.
 - `packages`: reusable package definition.
 - `patient_packages`: purchase, session totals, consumed sessions, expiration, and state.
 - `package_usages`: appointment-linked immutable consumption or reversal ledger.

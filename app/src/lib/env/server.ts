@@ -32,3 +32,19 @@ export function getPrivilegedSupabaseEnv() {
     }),
   };
 }
+
+const reminderWorkerEnvSchema = z.object({
+  CRON_SECRET: z.string().min(32),
+});
+
+export function getReminderWorkerSecret() {
+  const result = reminderWorkerEnvSchema.safeParse({
+    CRON_SECRET: process.env.CRON_SECRET,
+  });
+  if (!result.success) {
+    throw new Error("Falta configurar un CRON_SECRET seguro.", {
+      cause: result.error,
+    });
+  }
+  return result.data.CRON_SECRET;
+}
