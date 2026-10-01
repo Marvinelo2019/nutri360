@@ -12,7 +12,7 @@ const navigation: Array<{ label: string; icon: IconName; href?: string }> = [
   { label: "Planes", icon: "clipboard", href: "/planes" },
   { label: "Equivalentes", icon: "spark", href: "/equivalentes" },
   { label: "Pagos", icon: "payments", href: "/pagos" },
-  { label: "Configuración", icon: "settings" },
+  { label: "Configuración", icon: "settings", href: "/configuracion" },
 ];
 
 export function WorkspaceNavigation({ mobile = false }: { mobile?: boolean }) {

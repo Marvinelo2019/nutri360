@@ -7,6 +7,7 @@ import { MealItemForm } from "@/features/meal-plans/meal-item-form";
 import { MealItemRow } from "@/features/meal-plans/meal-item-row";
 import { calculateEquivalentTotals } from "@/lib/nutrition/equivalents";
 import { SavePlanTemplateForm } from "@/features/meal-plan-templates/template-forms";
+import { PdfGenerationForm } from "@/features/meal-plan-pdf/pdf-generation-form";
 
 export const metadata = { title: "Detalle del plan" };
 const statusLabels = {
@@ -79,6 +80,46 @@ export default async function MealPlanPage({
           Agrega al menos un alimento antes de activar el plan.
         </p>
       )}
+      <section className="panel mt-5 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div>
+          <p className="eyebrow">Documento para el paciente</p>
+          <h2 className="mt-2 text-lg font-semibold">
+            Plan alimenticio en PDF
+          </h2>
+          <p className="mt-1 max-w-xl text-sm leading-6 text-[var(--text-muted)]">
+            Documento privado de dos páginas con la marca del consultorio.
+            {record.plan.status === "draft"
+              ? " Activa el plan para generar su versión final."
+              : " Se genera desde esta versión inmutable del plan."}
+          </p>
+          {record.plan.pdf_generated_at && (
+            <p className="mt-2 text-xs text-[var(--text-faint)]">
+              Ya existe una versión generada de este plan.
+            </p>
+          )}
+        </div>
+        {record.plan.status === "draft" ? (
+          <button className="button-secondary" disabled>
+            Activar antes de generar
+          </button>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {record.plan.pdf_object_path && (
+              <Link
+                className="button-secondary min-h-12"
+                href={`/planes/${id}/pdf`}
+                target="_blank"
+              >
+                Ver PDF actual
+              </Link>
+            )}
+            <PdfGenerationForm
+              hasPdf={Boolean(record.plan.pdf_object_path)}
+              planId={id}
+            />
+          </div>
+        )}
+      </section>
       <section className="mt-6 grid gap-3 sm:grid-cols-4">
         <article className="metric-card">
           <p className="text-xs text-[var(--text-faint)]">Energía</p>

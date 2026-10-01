@@ -4,7 +4,7 @@ Last updated: 2026-09-30.
 
 ## Current checkpoint
 
-The public-booking and reusable meal-plan template increments are complete, browser-validated, and preserved in Git checkpoints. Migration `20260930003300_meal_plan_templates.sql` is applied locally.
+Public booking, reusable meal-plan templates, and private branded meal-plan PDF generation are complete, browser-validated, and preserved in Git checkpoints. Migration `20260930003400_branded_meal_plan_pdfs.sql` is applied locally.
 
 Individual-food work remains intentionally paused. The user is consulting a nutritionist to validate the regional data source and professional workflow; do not invent or seed nutritional values while this decision is pending.
 
@@ -22,22 +22,23 @@ Individual-food work remains intentionally paused. The user is consulting a nutr
 - Configurable professional availability, one-off agenda blocks, and an enableable public booking link.
 - Mobile public slot selection with minimal patient contact data, pending appointment creation, versioned privacy consent, conflict protection, and durable HMAC-based rate limiting.
 - Organization-owned meal-plan templates that snapshot meal structure, items, equivalents, targets, and instructions without patient identity, then create independent patient-specific drafts.
+- Owner-managed clinic identity and private, audited two-page meal-plan PDFs generated only from immutable plans.
 
 ## Verification
 
-- Application: 19 test files and 52 tests pass.
-- Database: 11 pgTAP files and 278 tests pass.
+- Application: 21 test files and 58 tests pass.
+- Database: 12 pgTAP files and 309 tests pass.
 - ESLint, strict TypeScript, Prettier check, production build, and Supabase database lint pass.
 
 ## Important repository state
 
-The completed and browser-validated public-booking and reusable meal-plan template increments are preserved in consecutive feature checkpoints on `main`.
+The completed and browser-validated public-booking, reusable-template, and branded PDF increments are preserved in consecutive feature checkpoints on `main`.
 
 ## Recommended next work
 
 1. Review the nutritionist's response and select a regional food-data source before adding individual foods.
-2. Add private branded PDF generation for meal plans.
-3. Continue appointments with reminders or Google Calendar synchronization.
+2. Continue appointments with reminders or Google Calendar synchronization.
+3. Add patient-portal access to the current plan when phase 4 begins.
 
 ## Pending professional validation
 

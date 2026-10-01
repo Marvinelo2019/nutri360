@@ -286,6 +286,9 @@ export type Database = {
           name: string;
           organization_id: string;
           patient_id: string;
+          pdf_generated_at: string | null;
+          pdf_generated_by: string | null;
+          pdf_object_path: string | null;
           starts_on: string | null;
           status: Database["public"]["Enums"]["meal_plan_status"];
           target_carbohydrate_g: number | null;
@@ -862,6 +865,10 @@ export type Database = {
         Args: { target_plan_id: string };
         Returns: undefined;
       };
+      record_meal_plan_pdf_download: {
+        Args: { target_plan_id: string };
+        Returns: string;
+      };
       record_meal_plan_template_read: {
         Args: { target_template_id: string };
         Returns: undefined;
@@ -881,6 +888,10 @@ export type Database = {
       };
       remove_meal_plan_item: {
         Args: { target_item_id: string };
+        Returns: undefined;
+      };
+      register_meal_plan_pdf: {
+        Args: { object_path: string; target_plan_id: string };
         Returns: undefined;
       };
       update_meal_plan_item: {
@@ -917,6 +928,16 @@ export type Database = {
           group_protein_g: number;
           group_sort_order: number;
           target_group_id: string;
+        };
+        Returns: undefined;
+      };
+      update_organization_branding: {
+        Args: {
+          organization_brand_color: string;
+          organization_logo_path: string | null;
+          organization_name: string;
+          organization_phone_e164: string | null;
+          target_organization_id: string;
         };
         Returns: undefined;
       };

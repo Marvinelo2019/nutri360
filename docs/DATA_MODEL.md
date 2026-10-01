@@ -16,7 +16,7 @@ Store timestamps in UTC and render them using the organization's time zone. Stor
 
 ### Identity and tenancy
 
-- `organizations`: name, branding, contact details, timezone, subscription plan.
+- `organizations`: name, private logo path, brand color, contact details, timezone, and subscription plan.
 - `profiles`: authenticated user, organization, display name, role, status.
 - `organization_memberships`: supports future users belonging to more than one organization.
 - `audit_events`: actor, action, entity, entity ID, request metadata, timestamp.
@@ -37,7 +37,7 @@ Store timestamps in UTC and render them using the organization's time zone. Stor
 - `food_groups`: organization-configurable equivalent definitions with portion guidance, energy/macronutrients per equivalent, ordering, and active state.
 - `foods`: local or organization-defined food, portion, nutrients, source, and version.
 - `energy_calculations`: immutable adult calculation snapshot with source measurement, reference sex and age, versioned Mifflin-St Jeor / revised Harris-Benedict / FAO-WHO-UNU formula, activity factor, explicit goal adjustment, resting/total/target energy, macro method inputs, and gram outputs.
-- `meal_plans`: patient, targets, status, version, validity, and generated PDF object path.
+- `meal_plans`: patient, targets, status, version, validity, and latest private PDF object path with generation actor/time.
 - `meal_plan_meals`: meal time, ordering, and option number.
 - `meal_plan_items`: meal option, food, quantity, unit, and optional immutable food-group/equivalent nutrient snapshot.
 - `meal_plan_templates`: reusable organization-owned snapshot of plan targets and general instructions, with source-plan provenance but no patient identity.
@@ -55,6 +55,11 @@ Store timestamps in UTC and render them using the organization's time zone. Stor
 - `patient_packages`: purchase, session totals, consumed sessions, expiration, and state.
 - `package_usages`: appointment-linked immutable consumption or reversal ledger.
 - `payments`: patient, appointment/package, amount in minor units, method, status, and paid timestamp.
+
+### Private object storage
+
+- `organization-assets`: private clinic logos scoped by organization folder; owners write and clinicians read for document generation.
+- `meal-plan-pdfs`: private generated plan documents scoped by organization and available only to clinical roles through authenticated downloads.
 
 ## Initial enums
 
