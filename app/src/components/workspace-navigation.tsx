@@ -11,6 +11,7 @@ const navigation: Array<{ label: string; icon: IconName; href?: string }> = [
   { label: "Pacientes", icon: "patients", href: "/pacientes" },
   { label: "Planes", icon: "clipboard", href: "/planes" },
   { label: "Equivalentes", icon: "spark", href: "/equivalentes" },
+  { label: "Paquetes", icon: "payments", href: "/paquetes" },
   { label: "Pagos", icon: "payments", href: "/pagos" },
   { label: "Configuración", icon: "settings", href: "/configuracion" },
 ];

@@ -1,10 +1,14 @@
 # Current project status
 
-Last updated: 2026-09-30.
+Last updated: 2026-10-06.
 
 ## Current checkpoint
 
 Public booking, reusable meal-plan templates, private branded meal-plan PDF generation, and the provider-neutral appointment reminder center are complete and browser-validated. Migration `20260930003500_appointment_reminders.sql` is applied locally.
+
+A Twilio WhatsApp Sandbox adapter is implemented locally and awaits account credentials plus one live test. It is intentionally restricted to one organization and one joined test number; production patient delivery remains disabled.
+
+Reusable consultation packages and the immutable session-consumption ledger are complete and browser-validated. The local validation created four package definitions and sold two packages with linked payments to synthetic patients.
 
 Individual-food work remains intentionally paused. The user is consulting a nutritionist to validate the regional data source and professional workflow; do not invent or seed nutritional values while this decision is pending.
 
@@ -25,22 +29,23 @@ Individual-food work remains intentionally paused. The user is consulting a nutr
 - Owner-managed clinic identity and private, audited two-page meal-plan PDFs generated only from immutable plans.
 - Automatic appointment confirmation, 24-hour, and 2-hour reminder scheduling with configurable channel, cancellation, missing-contact visibility, idempotent worker leases, bounded retries, and immutable attempt history.
 - An Agenda reminder center that clearly distinguishes queued, sent, cancelled, failed, and contact-blocked jobs. Live delivery remains disabled until a messaging provider is selected and configured.
+- Reusable package definitions, patient purchases with frozen commercial terms, linked paid/pending payments, derived session balances, completed-appointment consumption, and immutable compensating reversals.
 
 ## Verification
 
-- Application: 22 test files and 60 tests pass.
-- Database: 13 pgTAP files and 346 tests pass.
+- Application: 25 test files and 66 tests pass.
+- Database: 15 pgTAP files and 395 tests pass.
 - ESLint, strict TypeScript, Prettier check, production build, and Supabase database lint pass.
 
 ## Important repository state
 
-The completed and browser-validated public-booking, reusable-template, branded PDF, and appointment-reminder increments are preserved in consecutive feature checkpoints on `main`.
+The completed and browser-validated public-booking, reusable-template, branded PDF, and appointment-reminder queue increments are preserved in consecutive feature checkpoints on `main`. Twilio Sandbox and package-ledger work remain uncommitted local increments.
 
 ## Recommended next work
 
 1. Review the nutritionist's response and select a regional food-data source before adding individual foods.
 2. Choose the first live reminder channel and provider before enabling outbound messages.
-3. Continue appointments with Google Calendar synchronization or add patient-portal access when phase 4 begins.
+3. Add monthly no-show reporting and Excel export, then continue appointments with Google Calendar synchronization or add patient-portal access when phase 4 begins.
 
 ## Pending professional validation
 

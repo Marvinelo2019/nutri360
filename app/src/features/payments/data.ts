@@ -15,18 +15,38 @@ export async function getMonthlyPayments(monthDate = clinicDateKey()) {
   const patientIds = [
     ...new Set(payments.map((payment) => payment.patient_id)),
   ];
-  const { data: patients } = patientIds.length
-    ? await supabase
-        .from("patients")
-        .select("id, first_name, last_name")
-        .in("id", patientIds)
-    : { data: [] };
+  const patientPackageIds = payments
+    .map((payment) => payment.patient_package_id)
+    .filter((id): id is string => Boolean(id));
+  const [{ data: patients }, { data: patientPackages }] = await Promise.all([
+    patientIds.length
+      ? supabase
+          .from("patients")
+          .select("id, first_name, last_name")
+          .in("id", patientIds)
+      : Promise.resolve({ data: [] }),
+    patientPackageIds.length
+      ? supabase
+          .from("patient_packages")
+          .select("id, package_name_snapshot")
+          .in("id", patientPackageIds)
+      : Promise.resolve({ data: [] }),
+  ]);
   const names = new Map(
     (patients ?? []).map((patient) => [patient.id, patient]),
+  );
+  const packageNames = new Map(
+    (patientPackages ?? []).map((item) => [
+      item.id,
+      item.package_name_snapshot,
+    ]),
   );
   return payments.map((payment) => ({
     ...payment,
     patient: names.get(payment.patient_id) ?? null,
+    packageName: payment.patient_package_id
+      ? (packageNames.get(payment.patient_package_id) ?? null)
+      : null,
   }));
 }
 

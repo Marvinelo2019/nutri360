@@ -64,6 +64,7 @@ export default async function PaymentsPage() {
                 <tr>
                   <th className="px-6 py-3 font-medium">Paciente</th>
                   <th className="px-4 py-3 font-medium">Fecha</th>
+                  <th className="px-4 py-3 font-medium">Concepto</th>
                   <th className="px-4 py-3 font-medium">Método</th>
                   <th className="px-4 py-3 font-medium">Estado</th>
                   <th className="px-4 py-3 text-right font-medium">Monto</th>
@@ -82,6 +83,9 @@ export default async function PaymentsPage() {
                       {dateFormat.format(
                         new Date(payment.paid_at ?? payment.created_at),
                       )}
+                    </td>
+                    <td className="px-4 py-4 text-[var(--text-muted)]">
+                      {payment.packageName ?? "Consulta"}
                     </td>
                     <td className="px-4 py-4">
                       {paymentMethodLabels[payment.method]}

@@ -53,10 +53,10 @@ Store timestamps in UTC and render them using the organization's time zone. Stor
 - `reminder_settings`: organization channel preference and enablement for confirmation, 24-hour, and 2-hour notices.
 - `appointment_reminders`: provider-neutral appointment jobs with explicit schedule, bounded attempts, lease state, idempotency key, normalized error, and provider message ID; patient contact data and rendered messages are not copied into the queue.
 - `reminder_delivery_attempts`: immutable outcome ledger for each provider delivery attempt.
-- `packages`: reusable package definition.
-- `patient_packages`: purchase, session totals, consumed sessions, expiration, and state.
-- `package_usages`: appointment-linked immutable consumption or reversal ledger.
-- `payments`: patient, appointment/package, amount in minor units, method, status, and paid timestamp.
+- `packages`: organization-owned reusable commercial definition with immutable name, session count, price, and validity terms plus an archive flag.
+- `patient_packages`: patient purchase with immutable snapshots of the package name, total sessions, price, purchase date, and expiration; cancellation is an explicit state.
+- `package_usages`: appointment-linked append-only ledger where consumption debits one session and reversal credits it back. Remaining sessions are derived from ledger deltas rather than stored in a mutable counter.
+- `payments`: patient, optional appointment or patient-package relationship, amount in minor units, method, status, and paid timestamp.
 
 ### Private object storage
 

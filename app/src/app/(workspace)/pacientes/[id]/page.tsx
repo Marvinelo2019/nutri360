@@ -5,6 +5,7 @@ import { Icon } from "@/components/icon";
 import { getPatient } from "@/features/patients/data";
 import { MeasurementForm } from "@/features/patients/measurement-form";
 import { ProgressChart } from "@/features/patients/progress-chart";
+import { patientPackageStateLabels } from "@/features/packages/presentation";
 import {
   bmiLabels,
   type BmiClassification,
@@ -52,9 +53,17 @@ export default async function PatientPage({
             )}
           </p>
         </div>
-        <span className="w-fit rounded-full bg-[var(--brand-50)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-700)]">
-          Paciente activo
-        </span>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            className="button-secondary"
+            href={`/paquetes/vender?paciente=${id}`}
+          >
+            Vender paquete
+          </Link>
+          <span className="w-fit rounded-full bg-[var(--brand-50)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-700)]">
+            Paciente activo
+          </span>
+        </div>
       </header>
       <div className="mt-6 grid gap-5 xl:grid-cols-[1fr_22rem]">
         <div className="space-y-5">
@@ -98,6 +107,50 @@ export default async function PatientPage({
                 </dd>
               </div>
             </dl>
+          </section>
+          <section className="panel">
+            <div className="panel-header">
+              <div>
+                <h2 className="panel-title">Paquetes y sesiones</h2>
+                <p className="panel-description">
+                  Saldo administrativo derivado del historial de movimientos.
+                </p>
+              </div>
+              <Link
+                className="button-secondary"
+                href={`/paquetes/vender?paciente=${id}`}
+              >
+                Vender paquete
+              </Link>
+            </div>
+            {record.patientPackages.length ? (
+              <div className="divide-y divide-[var(--line)]">
+                {record.patientPackages.map((patientPackage) => (
+                  <Link
+                    className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-[var(--surface-muted)] sm:px-6"
+                    href={`/paquetes/${patientPackage.id}`}
+                    key={patientPackage.id}
+                  >
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {patientPackage.package_name_snapshot}
+                      </p>
+                      <p className="mt-1 text-xs text-[var(--text-muted)]">
+                        {patientPackageStateLabels[patientPackage.displayState]}
+                      </p>
+                    </div>
+                    <p className="text-sm font-semibold text-[var(--brand-700)]">
+                      {patientPackage.remainingSessions}/
+                      {patientPackage.total_sessions} sesiones
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="px-6 py-9 text-center text-sm text-[var(--text-muted)]">
+                Este paciente todavía no tiene paquetes registrados.
+              </p>
+            )}
           </section>
           {record.canViewClinical ? (
             <>

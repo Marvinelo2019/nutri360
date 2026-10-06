@@ -548,6 +548,60 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["patients"]["Row"]>;
         Relationships: [];
       };
+      packages: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          id: string;
+          is_active: boolean;
+          name: string;
+          organization_id: string;
+          price_centavos: number;
+          session_count: number;
+          updated_at: string;
+          validity_days: number;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      package_usages: {
+        Row: {
+          appointment_id: string;
+          created_at: string;
+          id: string;
+          kind: Database["public"]["Enums"]["package_usage_kind"];
+          organization_id: string;
+          patient_id: string;
+          patient_package_id: string;
+          recorded_by: string;
+          reverses_usage_id: string | null;
+          session_delta: number;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      patient_packages: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          expires_on: string;
+          id: string;
+          organization_id: string;
+          package_id: string;
+          package_name_snapshot: string;
+          patient_id: string;
+          price_centavos: number;
+          purchased_on: string;
+          status: Database["public"]["Enums"]["patient_package_status"];
+          total_sessions: number;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       payments: {
         Row: {
           amount_centavos: number;
@@ -559,6 +613,7 @@ export type Database = {
           organization_id: string;
           paid_at: string | null;
           patient_id: string;
+          patient_package_id: string | null;
           recorded_by: string;
           status: Database["public"]["Enums"]["payment_status"];
           updated_at: string;
@@ -700,6 +755,42 @@ export type Database = {
         };
         Returns: undefined;
       };
+      cancel_patient_package: {
+        Args: { target_patient_package_id: string };
+        Returns: undefined;
+      };
+      consume_package_session: {
+        Args: {
+          target_appointment_id: string;
+          target_patient_package_id: string;
+        };
+        Returns: string;
+      };
+      claim_due_twilio_sandbox_reminders: {
+        Args: {
+          batch_size: number;
+          sandbox_recipient_phone: string;
+          target_organization_id: string;
+          worker_id: string;
+        };
+        Returns: {
+          appointment_starts_at: string;
+          attempt_count: number;
+          recipient_phone_e164: string;
+          reminder_id: string;
+        }[];
+      };
+      complete_appointment_reminder: {
+        Args: {
+          delivery_outcome: Database["public"]["Enums"]["reminder_attempt_outcome"];
+          external_message_id: string | null;
+          normalized_error_code: string | null;
+          provider_name: string;
+          target_reminder_id: string;
+          worker_id: string;
+        };
+        Returns: undefined;
+      };
       complete_consultation: {
         Args: { target_consultation_id: string };
         Returns: undefined;
@@ -816,6 +907,16 @@ export type Database = {
         Args: { organization_name: string; organization_slug: string };
         Returns: string;
       };
+      create_package_definition: {
+        Args: {
+          package_name: string;
+          package_price_centavos: number;
+          package_session_count: number;
+          package_validity_days: number;
+          target_organization_id: string;
+        };
+        Returns: string;
+      };
       create_patient: {
         Args: {
           accepted_consent: boolean;
@@ -928,6 +1029,10 @@ export type Database = {
       record_meal_plan_template_read: {
         Args: { target_template_id: string };
         Returns: undefined;
+      };
+      reverse_package_session: {
+        Args: { target_consumption_id: string };
+        Returns: string;
       };
       record_lab_result: {
         Args: {
@@ -1077,6 +1182,22 @@ export type Database = {
         };
         Returns: undefined;
       };
+      sell_patient_package: {
+        Args: {
+          create_linked_payment: boolean;
+          linked_payment_method: Database["public"]["Enums"]["payment_method"];
+          linked_payment_reference: string | null;
+          linked_payment_status: Database["public"]["Enums"]["payment_status"];
+          purchase_date: string;
+          target_package_id: string;
+          target_patient_id: string;
+        };
+        Returns: string;
+      };
+      set_package_active: {
+        Args: { next_active: boolean; target_package_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       adult_bmi_classification:
@@ -1106,6 +1227,8 @@ export type Database = {
       membership_status: "invited" | "active" | "suspended";
       meal_plan_status: "draft" | "active" | "archived";
       patient_status: "active" | "inactive" | "archived";
+      package_usage_kind: "consumption" | "reversal";
+      patient_package_status: "active" | "cancelled";
       payment_method: "cash" | "card" | "transfer" | "other";
       payment_status: "pending" | "paid" | "voided" | "refunded";
       reminder_attempt_outcome: "sent" | "failed";

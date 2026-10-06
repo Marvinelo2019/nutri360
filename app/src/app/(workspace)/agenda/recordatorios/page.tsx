@@ -7,7 +7,11 @@ import {
   reminderStatusClass,
   reminderStatusLabels,
 } from "@/features/reminders/presentation";
-import { ReminderSettingsForm } from "@/features/reminders/reminder-settings-form";
+import {
+  ReminderSettingsForm,
+  TwilioSandboxControl,
+} from "@/features/reminders/reminder-settings-form";
+import { isTwilioSandboxConfigured } from "@/lib/env/server";
 import { formatClinicDate, formatClinicTime } from "@/lib/format";
 
 export const metadata = { title: "Recordatorios" };
@@ -20,6 +24,7 @@ function dateTime(value: string) {
 export default async function ReminderCenterPage() {
   const record = await getReminderCenter();
   const canConfigure = record.workspace.role !== "assistant";
+  const sandboxConfigured = isTwilioSandboxConfigured();
   const blocked = record.reminders.filter(
     (reminder) => reminder.status === "blocked",
   ).length;
@@ -50,9 +55,14 @@ export default async function ReminderCenterPage() {
       </div>
 
       <div className="mb-6 rounded-2xl border border-[var(--line)] bg-[var(--brand-50)] p-4 text-sm leading-6 text-[var(--brand-950)]">
-        <strong>Programación activa, envío externo pendiente.</strong> Las citas
-        ya generan su cola automáticamente, pero ningún mensaje saldrá hasta
-        conectar un proveedor de WhatsApp, SMS o correo.
+        <strong>
+          {sandboxConfigured
+            ? "Sandbox de WhatsApp disponible para pruebas."
+            : "Programación activa, envío externo pendiente."}
+        </strong>{" "}
+        {sandboxConfigured
+          ? "Solo puede enviar al número de prueba autorizado."
+          : "Las citas generan su cola, pero ningún mensaje saldrá hasta completar la configuración de Twilio."}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[22rem_1fr]">
@@ -78,6 +88,12 @@ export default async function ReminderCenterPage() {
         </section>
 
         <div className="space-y-6">
+          {canConfigure && (
+            <TwilioSandboxControl
+              configured={sandboxConfigured}
+              organizationId={record.workspace.id}
+            />
+          )}
           <section className="grid grid-cols-3 gap-3">
             {[
               ["Programados", pending],

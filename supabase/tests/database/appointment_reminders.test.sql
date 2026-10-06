@@ -49,6 +49,11 @@ select results_eq($$select count(*) from public.appointment_reminders reminder j
 reset role;
 select lives_ok($$select private.schedule_appointment_reminders((select appointment.id from public.appointments appointment join public.patients patient on patient.id=appointment.patient_id where patient.first_name='Contact'),true)$$,'repeated scheduling is accepted');
 select results_eq($$select count(*) from public.appointment_reminders reminder join public.appointments appointment on appointment.id=reminder.appointment_id join public.patients patient on patient.id=appointment.patient_id where patient.first_name='Contact'$$,array[3::bigint],'repeated scheduling does not duplicate jobs');
+update public.appointment_reminders set
+  next_attempt_at = now() + interval '1 day',
+  locked_at = case when status = 'processing' then now() else locked_at end
+where organization_id <> '2a000000-0000-4000-8000-000000000001'
+  and status in ('queued','processing');
 
 set local role service_role;
 create temporary table claimed_reminders on commit drop as

@@ -2,7 +2,8 @@ import { timingSafeEqual } from "node:crypto";
 
 import { NextResponse, type NextRequest } from "next/server";
 
-import { getReminderWorkerSecret } from "@/lib/env/server";
+import { getReminderWorkerSecret, getTwilioSandboxEnv } from "@/lib/env/server";
+import { processTwilioSandboxReminders } from "@/features/reminders/twilio-sandbox";
 
 export const runtime = "nodejs";
 
@@ -32,12 +33,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return NextResponse.json(
-    {
-      error: "delivery_provider_not_configured",
-      message:
-        "La cola está activa, pero falta conectar el proveedor de mensajería.",
-    },
-    { status: 503 },
-  );
+  try {
+    const config = getTwilioSandboxEnv();
+    const result = await processTwilioSandboxReminders(
+      config.TWILIO_SANDBOX_ORGANIZATION_ID,
+    );
+    return NextResponse.json(result);
+  } catch {
+    return NextResponse.json(
+      { error: "sandbox_worker_failed" },
+      { status: 503 },
+    );
+  }
 }

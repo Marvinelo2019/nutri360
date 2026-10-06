@@ -3,6 +3,8 @@ import "server-only";
 import { requireWorkspace } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
+import { patientPackageDisplayState } from "../packages/presentation";
+
 export async function listPatients() {
   const { workspace } = await requireWorkspace();
   const supabase = await createServerSupabaseClient();
@@ -30,6 +32,37 @@ export async function getPatient(patientId: string) {
     .maybeSingle();
 
   if (!patient) return null;
+  const { data: patientPackages, error: patientPackagesError } = await supabase
+    .from("patient_packages")
+    .select("*")
+    .eq("patient_id", patientId)
+    .eq("organization_id", workspace.id)
+    .order("created_at", { ascending: false });
+  if (patientPackagesError) throw patientPackagesError;
+  const packageIds = patientPackages.map((item) => item.id);
+  const { data: packageUsages, error: packageUsagesError } = packageIds.length
+    ? await supabase
+        .from("package_usages")
+        .select("patient_package_id, session_delta")
+        .in("patient_package_id", packageIds)
+    : { data: [], error: null };
+  if (packageUsagesError) throw packageUsagesError;
+  const packageDeltas = new Map<string, number>();
+  for (const usage of packageUsages ?? []) {
+    packageDeltas.set(
+      usage.patient_package_id,
+      (packageDeltas.get(usage.patient_package_id) ?? 0) + usage.session_delta,
+    );
+  }
+  const packageSummaries = patientPackages.map((item) => {
+    const remainingSessions =
+      item.total_sessions + (packageDeltas.get(item.id) ?? 0);
+    return {
+      ...item,
+      remainingSessions,
+      displayState: patientPackageDisplayState(item, remainingSessions),
+    };
+  });
   const canViewClinical =
     workspace.role === "owner" || workspace.role === "nutritionist";
   if (!canViewClinical)
@@ -40,6 +73,7 @@ export async function getPatient(patientId: string) {
       measurements: [],
       consultations: [],
       energyCalculations: [],
+      patientPackages: packageSummaries,
       canViewClinical,
     };
 
@@ -110,6 +144,7 @@ export async function getPatient(patientId: string) {
     measurements: measurements ?? [],
     consultations: consultations ?? [],
     energyCalculations: energyCalculations ?? [],
+    patientPackages: packageSummaries,
     canViewClinical,
   };
 }

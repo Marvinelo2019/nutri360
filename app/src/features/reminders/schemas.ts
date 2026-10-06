@@ -15,3 +15,10 @@ export type ReminderSettingsState = {
 export const initialReminderSettingsState: ReminderSettingsState = {
   status: "idle",
 };
+
+export type SandboxTestState = {
+  status: "idle" | "error" | "success";
+  message?: string;
+};
+
+export const initialSandboxTestState: SandboxTestState = { status: "idle" };

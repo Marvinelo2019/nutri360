@@ -5,7 +5,12 @@ import { revalidatePath } from "next/cache";
 import { requireWorkspace } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-import { reminderSettingsSchema, type ReminderSettingsState } from "./schemas";
+import {
+  reminderSettingsSchema,
+  type ReminderSettingsState,
+  type SandboxTestState,
+} from "./schemas";
+import { processTwilioSandboxReminders } from "./twilio-sandbox";
 
 export async function saveReminderSettingsAction(
   _state: ReminderSettingsState,
@@ -39,4 +44,43 @@ export async function saveReminderSettingsAction(
 
   revalidatePath("/agenda/recordatorios");
   return { status: "success", message: "Configuración guardada." };
+}
+
+export async function runTwilioSandboxOnceAction(
+  _state: SandboxTestState,
+  _formData: FormData,
+): Promise<SandboxTestState> {
+  void _state;
+  void _formData;
+  const { workspace } = await requireWorkspace();
+  if (workspace.role !== "owner" && workspace.role !== "nutritionist") {
+    return { status: "error", message: "No tienes permiso para esta prueba." };
+  }
+
+  try {
+    const result = await processTwilioSandboxReminders(workspace.id);
+    revalidatePath("/agenda/recordatorios");
+    if (!result.claimed) {
+      return {
+        status: "error",
+        message:
+          "No hay un recordatorio vencido para el número de prueba configurado.",
+      };
+    }
+    if (result.sent) {
+      return {
+        status: "success",
+        message: "Twilio aceptó el recordatorio de prueba.",
+      };
+    }
+    return {
+      status: "error",
+      message: "Twilio rechazó el envío; Nutri360 lo dejó para reintento.",
+    };
+  } catch {
+    return {
+      status: "error",
+      message: "El Sandbox todavía no está configurado correctamente.",
+    };
+  }
 }
