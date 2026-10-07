@@ -1,6 +1,6 @@
 # Google Calendar synchronization
 
-Status: implementation complete; Google Cloud credentials and live rehearsal pending.
+Status: implementation complete; live OAuth, free/busy, and two-event export validated. Cancellation, public conflict, and disconnect rehearsal pending.
 
 ## Outcome
 
@@ -84,6 +84,8 @@ Excluded:
 - 2026-10-07: Added private connection/state/mapping/outbox/free-busy tables, RLS, role checks, auditing, fresh-busy conflict guards, and 37 focused pgTAP assertions.
 - 2026-10-07: Added server-only OAuth routes, AES-256-GCM token encryption, deterministic generic event synchronization, free/busy reduction, leased worker processing, manual sync/disconnect controls, and setup documentation.
 - 2026-10-07: All 499 database tests and all 84 application tests pass; lint, typecheck, formatting, production build, and database lint are clean. Live Google validation remains intentionally pending until test credentials are provided outside the repository.
+- 2026-10-07: Live OAuth and free/busy synchronization succeeded. Event export exposed a missing database grant: the service worker could claim jobs but could not read appointment timing. Added a corrective migration granting `service_role` select access only to appointment identity, organization, and start/end columns; patient and clinical columns remain unavailable through this grant.
+- 2026-10-07: Applied the corrective migration locally and retried the two existing jobs. Both completed successfully, produced two appointment-event mappings, and cleared their sanitized error state. All 504 database assertions and 84 application tests pass; lint, typecheck, formatting, production build, and database lint are clean.
 
 ## Decision log
 

@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(37);
+select plan(42);
 
 select has_table('public','google_calendar_connections','Google Calendar connections exist');
 select has_table('public','google_calendar_oauth_states','one-time OAuth states exist');
@@ -20,6 +20,11 @@ select ok((
 select ok(not has_table_privilege('authenticated','public.google_calendar_connections','SELECT'),'browser roles cannot read encrypted credentials');
 select ok(not has_table_privilege('authenticated','public.calendar_sync_jobs','SELECT'),'browser roles cannot inspect worker jobs');
 select ok(not has_function_privilege('authenticated','public.complete_google_calendar_connection(text,uuid,text,text,text,text[])','EXECUTE'),'browser roles cannot store OAuth credentials');
+select ok(has_column_privilege('service_role','public.appointments','id','SELECT'),'calendar worker can read appointment identity');
+select ok(has_column_privilege('service_role','public.appointments','organization_id','SELECT'),'calendar worker can scope appointments to an organization');
+select ok(has_column_privilege('service_role','public.appointments','starts_at','SELECT'),'calendar worker can read appointment start time');
+select ok(has_column_privilege('service_role','public.appointments','ends_at','SELECT'),'calendar worker can read appointment end time');
+select ok(not has_column_privilege('service_role','public.appointments','patient_id','SELECT'),'calendar worker cannot read the patient reference');
 
 insert into auth.users (id,instance_id,aud,role,email,encrypted_password,email_confirmed_at,raw_app_meta_data,raw_user_meta_data,created_at,updated_at)
 values
@@ -71,7 +76,10 @@ select throws_ok(
   $$select public.complete_google_calendar_connection(repeat('a',64),'1e000000-0000-0000-0000-000000000001',repeat('c',40),repeat('d',16),repeat('e',16),array['https://www.googleapis.com/auth/calendar.events.owned','https://www.googleapis.com/auth/calendar.freebusy'])$$,
   'P0001','OAuth state unavailable','OAuth state cannot be replayed'
 );
-select results_eq($$select count(*) from public.calendar_sync_jobs$$,array[1::bigint],'connecting backfills the future appointment');
+select results_eq(
+  $$select count(*) from public.calendar_sync_jobs where organization_id='2e000000-0000-0000-0000-000000000001'$$,
+  array[1::bigint],'connecting backfills the future appointment'
+);
 
 set local role authenticated;
 set local request.jwt.claim.sub='1e000000-0000-0000-0000-000000000001';
@@ -92,7 +100,10 @@ select results_eq(
 
 set local role service_role;
 select results_eq(
-  $$select count(*) from public.claim_calendar_sync_jobs(5,'calendar-test-worker')$$,
+  $$select count(*) from public.claim_calendar_sync_jobs(
+    5,'calendar-test-worker',
+    (select id from public.google_calendar_connections where organization_id='2e000000-0000-0000-0000-000000000001')
+  )$$,
   array[1::bigint],'worker atomically claims one due job'
 );
 select lives_ok(
@@ -101,7 +112,10 @@ select lives_ok(
     'calendar-test-worker','n360abcdef0123456789')$$,
   'worker completes an upsert job'
 );
-select results_eq($$select count(*) from public.appointment_calendar_events$$,array[1::bigint],'successful upsert stores one mapping');
+select results_eq(
+  $$select count(*) from public.appointment_calendar_events where organization_id='2e000000-0000-0000-0000-000000000001'$$,
+  array[1::bigint],'successful upsert stores one mapping'
+);
 
 reset role;
 update public.appointments set status='cancelled'
@@ -111,18 +125,27 @@ select results_eq(
   array['delete|queued'::text],'Nutri360 cancellation queues a Google deletion'
 );
 set local role service_role;
-select lives_ok($$select public.claim_calendar_sync_jobs(5,'calendar-test-worker')$$,'worker reclaims the desired deletion');
+select lives_ok(
+  $$select public.claim_calendar_sync_jobs(
+    5,'calendar-test-worker',
+    (select id from public.google_calendar_connections where organization_id='2e000000-0000-0000-0000-000000000001')
+  )$$,
+  'worker reclaims the desired deletion'
+);
 select lives_ok(
   $$select public.complete_calendar_sync_job(
     (select id from public.calendar_sync_jobs where appointment_id='4e000000-0000-0000-0000-000000000001'),
     'calendar-test-worker','n360abcdef0123456789')$$,
   'worker completes the deletion idempotently'
 );
-select results_eq($$select count(*) from public.appointment_calendar_events$$,array[0::bigint],'successful deletion removes the mapping');
+select results_eq(
+  $$select count(*) from public.appointment_calendar_events where organization_id='2e000000-0000-0000-0000-000000000001'$$,
+  array[0::bigint],'successful deletion removes the mapping'
+);
 
 select lives_ok(
   $$select public.replace_google_calendar_busy_periods(
-    (select id from public.google_calendar_connections),
+    (select id from public.google_calendar_connections where organization_id='2e000000-0000-0000-0000-000000000001'),
     array[((current_date+1)::timestamp+time '09:00') at time zone 'America/Guatemala'],
     array[((current_date+1)::timestamp+time '10:00') at time zone 'America/Guatemala'])$$,
   'worker stores free/busy timestamps without event content'
@@ -136,7 +159,8 @@ select throws_ok(
   'P0001','Professional is busy in connected calendar','fresh Google busy time blocks internal scheduling'
 );
 reset role;
-update public.google_calendar_connections set last_busy_sync_at=now()-interval '16 minutes';
+update public.google_calendar_connections set last_busy_sync_at=now()-interval '16 minutes'
+where organization_id='2e000000-0000-0000-0000-000000000001';
 set local role authenticated;
 set local request.jwt.claim.sub='1e000000-0000-0000-0000-000000000001';
 select lives_ok(
@@ -151,8 +175,14 @@ select lives_ok(
   $$select public.disconnect_google_calendar('2e000000-0000-0000-0000-000000000001','1e000000-0000-0000-0000-000000000001')$$,
   'professional disconnects the integration'
 );
-select results_eq($$select count(*) from public.google_calendar_connections$$,array[0::bigint],'disconnect removes encrypted credentials');
-select results_eq($$select count(*) from public.calendar_sync_jobs$$,array[0::bigint],'disconnect removes pending worker jobs');
+select results_eq(
+  $$select count(*) from public.google_calendar_connections where organization_id='2e000000-0000-0000-0000-000000000001'$$,
+  array[0::bigint],'disconnect removes encrypted credentials'
+);
+select results_eq(
+  $$select count(*) from public.calendar_sync_jobs where organization_id='2e000000-0000-0000-0000-000000000001'$$,
+  array[0::bigint],'disconnect removes pending worker jobs'
+);
 reset role;
 insert into public.appointments (
   id,organization_id,patient_id,professional_user_id,starts_at,ends_at,
