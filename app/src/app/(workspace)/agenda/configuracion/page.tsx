@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { GoogleCalendarConnectionCard } from "@/features/google-calendar/connection-card";
+import { getGoogleCalendarConfiguration } from "@/features/google-calendar/data";
 import {
   deleteAvailabilityBlockAction,
   deleteAvailabilityRuleAction,
@@ -26,8 +28,16 @@ function localDateTime(value: string) {
   }).format(new Date(value));
 }
 
-export default async function BookingConfigurationPage() {
-  const record = await getPublicBookingConfiguration();
+export default async function BookingConfigurationPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ calendar?: string }>;
+}) {
+  const [record, calendar, query] = await Promise.all([
+    getPublicBookingConfiguration(),
+    getGoogleCalendarConfiguration(),
+    searchParams,
+  ]);
   if (record.workspace.role === "assistant") redirect("/agenda");
   const names = new Map(
     record.professionals.map((professional) => [
@@ -57,6 +67,22 @@ export default async function BookingConfigurationPage() {
       </div>
 
       <div className="space-y-6">
+        {query.calendar === "connected" && (
+          <div className="form-success">
+            Google Calendar quedó conectado. La primera sincronización puede
+            tardar unos segundos.
+          </div>
+        )}
+        {query.calendar && !["connected"].includes(query.calendar) && (
+          <div className="form-error">
+            No pudimos completar la conexión con Google Calendar. Inténtalo de
+            nuevo o revisa la configuración del servidor.
+          </div>
+        )}
+        <GoogleCalendarConnectionCard
+          configured={calendar.configured}
+          connection={calendar.connection}
+        />
         <section className="panel p-5 sm:p-6">
           <p className="eyebrow">Enlace para compartir</p>
           <h2 className="mt-2 text-lg font-semibold">

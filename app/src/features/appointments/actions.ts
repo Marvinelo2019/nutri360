@@ -41,9 +41,11 @@ export async function createAppointmentAction(
   if (error) {
     const message = error.message.includes("already has")
       ? "El profesional ya tiene una cita en ese horario."
-      : error.message.includes("past")
-        ? "La cita debe programarse en un horario futuro."
-        : "No pudimos programar la cita. Revisa los datos e inténtalo nuevamente.";
+      : error.message.includes("busy in connected calendar")
+        ? "El profesional aparece ocupado en su Google Calendar."
+        : error.message.includes("past")
+          ? "La cita debe programarse en un horario futuro."
+          : "No pudimos programar la cita. Revisa los datos e inténtalo nuevamente.";
     return { status: "error", message };
   }
 

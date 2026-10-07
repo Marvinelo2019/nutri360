@@ -87,3 +87,42 @@ export function getTwilioSandboxEnv(): TwilioSandboxEnv {
 export function isTwilioSandboxConfigured() {
   return twilioSandboxEnvSchema.safeParse(twilioSandboxEnvironment()).success;
 }
+
+const googleCalendarEnvSchema = z.object({
+  GOOGLE_CALENDAR_CLIENT_ID: z.string().min(20),
+  GOOGLE_CALENDAR_CLIENT_SECRET: z.string().min(8),
+  GOOGLE_CALENDAR_REDIRECT_URI: z.url(),
+  GOOGLE_CALENDAR_TOKEN_ENCRYPTION_KEY: z.string().refine((value) => {
+    try {
+      return Buffer.from(value, "base64").length === 32;
+    } catch {
+      return false;
+    }
+  }, "La llave de cifrado debe contener 32 bytes en Base64."),
+});
+
+export type GoogleCalendarEnv = z.infer<typeof googleCalendarEnvSchema>;
+
+function googleCalendarEnvironment() {
+  return {
+    GOOGLE_CALENDAR_CLIENT_ID: process.env.GOOGLE_CALENDAR_CLIENT_ID,
+    GOOGLE_CALENDAR_CLIENT_SECRET: process.env.GOOGLE_CALENDAR_CLIENT_SECRET,
+    GOOGLE_CALENDAR_REDIRECT_URI: process.env.GOOGLE_CALENDAR_REDIRECT_URI,
+    GOOGLE_CALENDAR_TOKEN_ENCRYPTION_KEY:
+      process.env.GOOGLE_CALENDAR_TOKEN_ENCRYPTION_KEY,
+  };
+}
+
+export function getGoogleCalendarEnv(): GoogleCalendarEnv {
+  const result = googleCalendarEnvSchema.safeParse(googleCalendarEnvironment());
+  if (!result.success) {
+    throw new Error("Falta configurar la integración de Google Calendar.", {
+      cause: result.error,
+    });
+  }
+  return result.data;
+}
+
+export function isGoogleCalendarConfigured() {
+  return googleCalendarEnvSchema.safeParse(googleCalendarEnvironment()).success;
+}

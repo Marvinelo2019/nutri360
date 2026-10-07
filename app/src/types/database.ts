@@ -62,6 +62,41 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      appointment_calendar_events: {
+        Row: {
+          appointment_id: string;
+          created_at: string;
+          google_event_id: string;
+          last_synced_at: string;
+          organization_id: string;
+          professional_user_id: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      calendar_sync_jobs: {
+        Row: {
+          appointment_id: string;
+          attempt_count: number;
+          connection_id: string;
+          created_at: string;
+          id: string;
+          last_error_code: string | null;
+          locked_at: string | null;
+          locked_by: string | null;
+          max_attempts: number;
+          next_attempt_at: string;
+          operation: Database["public"]["Enums"]["calendar_sync_operation"];
+          organization_id: string;
+          professional_user_id: string;
+          status: Database["public"]["Enums"]["calendar_sync_status"];
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       consultations: {
         Row: {
           assessment: string | null;
@@ -152,6 +187,55 @@ export type Database = {
           protein_g: number;
           sort_order: number;
           updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      google_calendar_busy_periods: {
+        Row: {
+          connection_id: string;
+          ends_at: string;
+          id: number;
+          organization_id: string;
+          professional_user_id: string;
+          refreshed_at: string;
+          starts_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      google_calendar_connections: {
+        Row: {
+          calendar_id: string;
+          connected_at: string;
+          granted_scopes: string[];
+          id: string;
+          last_busy_sync_at: string | null;
+          last_error_code: string | null;
+          last_event_sync_at: string | null;
+          organization_id: string;
+          professional_user_id: string;
+          refresh_token_auth_tag: string;
+          refresh_token_ciphertext: string;
+          refresh_token_iv: string;
+          status: Database["public"]["Enums"]["calendar_connection_status"];
+          token_key_version: number;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      google_calendar_oauth_states: {
+        Row: {
+          consumed_at: string | null;
+          created_at: string;
+          expires_at: string;
+          organization_id: string;
+          professional_user_id: string;
+          state_hash: string;
         };
         Insert: never;
         Update: never;
@@ -764,6 +848,41 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      claim_calendar_sync_jobs: {
+        Args: {
+          batch_size: number;
+          target_connection_id?: string;
+          worker_id: string;
+        };
+        Returns: Database["public"]["Tables"]["calendar_sync_jobs"]["Row"][];
+      };
+      complete_calendar_sync_job: {
+        Args: {
+          google_event_id: string;
+          target_job_id: string;
+          worker_id: string;
+        };
+        Returns: undefined;
+      };
+      complete_google_calendar_connection: {
+        Args: {
+          encrypted_refresh_token: string;
+          granted_scopes: string[];
+          oauth_state_hash: string;
+          refresh_token_auth_tag: string;
+          refresh_token_iv: string;
+          target_professional_user_id: string;
+        };
+        Returns: string;
+      };
+      create_google_calendar_oauth_state: {
+        Args: {
+          oauth_state_hash: string;
+          target_organization_id: string;
+          target_professional_user_id: string;
+        };
+        Returns: undefined;
+      };
       add_meal_plan_item: {
         Args: {
           item_food_name: string;
@@ -925,6 +1044,53 @@ export type Database = {
           target_professional_user_id: string;
         };
         Returns: string;
+      };
+      disconnect_google_calendar: {
+        Args: {
+          target_organization_id: string;
+          target_professional_user_id: string;
+        };
+        Returns: undefined;
+      };
+      fail_calendar_sync_job: {
+        Args: {
+          normalized_error_code: string;
+          requires_reauthorization?: boolean;
+          target_job_id: string;
+          worker_id: string;
+        };
+        Returns: undefined;
+      };
+      get_google_calendar_connection_status: {
+        Args: { target_organization_id: string };
+        Returns: {
+          connected_at: string;
+          connection_status: Database["public"]["Enums"]["calendar_connection_status"];
+          last_busy_sync_at: string | null;
+          last_error_code: string | null;
+          last_event_sync_at: string | null;
+          pending_job_count: number;
+        }[];
+      };
+      queue_google_calendar_sync: {
+        Args: { target_organization_id: string };
+        Returns: undefined;
+      };
+      record_google_calendar_connection_error: {
+        Args: {
+          normalized_error_code: string;
+          requires_reauthorization?: boolean;
+          target_connection_id: string;
+        };
+        Returns: undefined;
+      };
+      replace_google_calendar_busy_periods: {
+        Args: {
+          period_ends: string[];
+          period_starts: string[];
+          target_connection_id: string;
+        };
+        Returns: undefined;
       };
       create_meal_plan: {
         Args: {
@@ -1326,6 +1492,10 @@ export type Database = {
         | "no_show"
         | "cancelled"
         | "rescheduled";
+      calendar_connection_status:
+        "active" | "reauthorization_required" | "error";
+      calendar_sync_operation: "upsert" | "delete";
+      calendar_sync_status: "queued" | "processing" | "succeeded" | "failed";
       consultation_status: "draft" | "completed";
       consultation_type: "initial" | "follow_up";
       energy_formula:

@@ -32,6 +32,11 @@ Store timestamps in UTC and render them using the organization's time zone. Stor
 - `anthropometric_measurements`: immutable adult or paediatric calculation snapshots. Adult rows preserve BMI, adult classification, normal-weight range, optional circumferences/skinfolds, and body-fat estimate. Paediatric rows preserve exact age in days/months, WHO 2006/2007 version, BMI-for-age and height-for-age z-scores, weight-for-age through 120 months, neutral classifications, and plausibility flags; adult-only outputs remain null.
 - `who_growth_reference_sources`: global read-only registry of the 12 official WHO workbooks used for paediatric growth, including URL, version, indicator, sex, age unit, and SHA-256 checksum.
 - `who_growth_reference_parameters`: global read-only LMS parameters generated deterministically from the registered WHO workbooks and keyed by source and age value. Browser roles have no direct table privileges.
+- `google_calendar_connections`: one private server-managed Google connection per organization/professional, containing only encrypted refresh-token material, narrow granted scopes, health, and synchronization timestamps.
+- `google_calendar_oauth_states`: hashed, short-lived, single-use OAuth state records bound to an organization and professional.
+- `calendar_sync_jobs`: leased, retryable, idempotent appointment-event outbox; appointment creation never waits for Google.
+- `appointment_calendar_events`: deterministic mapping between a Nutri360 appointment and its generic Google event identifier.
+- `google_calendar_busy_periods`: replaceable bounded snapshots containing only busy start/end timestamps; no Google event content is stored.
 - `lab_results`: test, value, unit, reference bounds, collected date, and notes.
 - `patient_progress_entries`: patient-entered weight and note.
 
