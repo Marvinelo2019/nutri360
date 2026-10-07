@@ -1135,6 +1135,10 @@ export type Database = {
         Args: { target_date: string; target_organization_id: string };
         Returns: Database["public"]["Tables"]["appointments"]["Row"][];
       };
+      list_appointments_for_local_month: {
+        Args: { target_month: string; target_organization_id: string };
+        Returns: Database["public"]["Tables"]["appointments"]["Row"][];
+      };
       list_public_booking_slots: {
         Args: {
           booking_slug: string;

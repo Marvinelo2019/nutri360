@@ -13,6 +13,7 @@ const navigation: Array<{ label: string; icon: IconName; href?: string }> = [
   { label: "Equivalentes", icon: "spark", href: "/equivalentes" },
   { label: "Paquetes", icon: "payments", href: "/paquetes" },
   { label: "Pagos", icon: "payments", href: "/pagos" },
+  { label: "Reportes", icon: "dashboard", href: "/reportes" },
   { label: "Configuración", icon: "settings", href: "/configuracion" },
 ];
 
