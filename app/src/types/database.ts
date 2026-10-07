@@ -348,22 +348,32 @@ export type Database = {
       anthropometric_measurements: {
         Row: {
           abdominal_skinfold_mm: number | null;
-          age_years_snapshot: number;
+          age_days_snapshot: number | null;
+          age_months_snapshot: number | null;
+          age_years_snapshot: number | null;
           arm_cm: number | null;
           bmi: number;
-          bmi_classification: Database["public"]["Enums"]["adult_bmi_classification"];
+          bmi_classification:
+            Database["public"]["Enums"]["adult_bmi_classification"] | null;
+          bmi_for_age_classification: string | null;
+          bmi_for_age_z: number | null;
+          calculation_pathway: "adult" | "paediatric";
           created_at: string;
           estimated_body_fat_percent: number | null;
           formula_version: string;
+          growth_reference_version: "who-2006" | "who-2007" | null;
           height_cm: number;
+          height_for_age_classification: string | null;
+          height_for_age_z: number | null;
           id: string;
           measured_at: string;
-          normal_weight_max_kg: number;
-          normal_weight_min_kg: number;
+          normal_weight_max_kg: number | null;
+          normal_weight_min_kg: number | null;
           calf_cm: number | null;
           hip_cm: number | null;
           organization_id: string;
           patient_id: string;
+          plausibility_flags: string[];
           recorded_by: string;
           subscapular_skinfold_mm: number | null;
           suprailiac_skinfold_mm: number | null;
@@ -372,6 +382,8 @@ export type Database = {
           waist_cm: number | null;
           waist_hip_ratio: number | null;
           weight_kg: number;
+          weight_for_age_classification: string | null;
+          weight_for_age_z: number | null;
           weight_lb: number;
         };
         Insert: never;
@@ -1063,6 +1075,15 @@ export type Database = {
           measured_triceps_mm: number | null;
           measured_waist_cm: number | null;
           measured_weight_kg: number;
+          target_patient_id: string;
+        };
+        Returns: string;
+      };
+      record_paediatric_anthropometry: {
+        Args: {
+          measured_height_cm: number;
+          measured_weight_kg: number;
+          measurement_time?: string;
           target_patient_id: string;
         };
         Returns: string;

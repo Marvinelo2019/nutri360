@@ -8,6 +8,8 @@ Public booking, reusable meal-plan templates, private branded meal-plan PDF gene
 
 The secure pre-consultation intake increment is complete and browser-validated. Clinicians can create expiring single-use links, revoke unused invitations, and review immutable patient submissions without automatically overwriting the professional clinical history. The validated flow created a link, registered patient answers, rejected reuse of the completed link, and created a second working invitation.
 
+The WHO paediatric growth-reference increment is complete locally. For patients under 18, weight and height now produce sex- and age-specific BMI-for-age and height-for-age z-scores using WHO 2006 (through 60 months) or WHO 2007 (from 61 months); weight-for-age is included only through 120 months. Results preserve the exact age, source version, classifications, plausibility flags, and calculation pathway without applying adult BMI cut-offs or presenting the output as a diagnosis.
+
 A Twilio WhatsApp Sandbox adapter is committed and awaits account credentials plus one live test. It is intentionally restricted to one organization and one joined test number; production patient delivery remains disabled.
 
 Reusable consultation packages and the immutable session-consumption ledger are browser-validated. The local validation created four package definitions and sold two packages with linked payments to synthetic patients. The monthly report and Excel workbook were also validated through the authenticated application flow.
@@ -36,20 +38,21 @@ Individual-food work remains intentionally paused. The user is consulting a nutr
 - Protected Excel export with reconciliable `Resumen`, `Citas`, `Pagos`, and `Paquetes` worksheets and no clinical or patient-contact fields.
 - Expanded operational dashboard metrics for appointments, billing, packages, and session balances.
 - Expiring and revocable pre-consultation links with hashed bearer tokens, versioned consent, durable throttling, immutable submissions, and clinician-only review.
+- Versioned WHO 2006/2007 paediatric growth references imported from 12 checksum-verified official workbooks, with clinician-only server calculation, immutable snapshots, RLS, role separation, and neutral Spanish presentation.
 
 ## Verification
 
-- Application: 29 test files and 76 tests pass.
-- Database: 17 pgTAP files and 434 tests pass.
+- Application: 30 test files and 78 tests pass.
+- Database: 18 pgTAP files and 462 tests pass.
 - ESLint, strict TypeScript, Prettier check, production build, and Supabase database lint pass.
 
 ## Important repository state
 
-Local `main` and GitLab `origin/main` share the `7b29ded` checkpoint (`feat: expand operational dashboard metrics`). The worktree contains the uncommitted pre-consultation intake increment and this status update. GitLab exposes no additional branches, tags, or merge-request refs through the repository remote. Twilio Sandbox, packages, monthly reporting, Excel export, and the expanded dashboard are committed.
+Local `main` and GitLab `origin/main` share the `dee1064` checkpoint (`feat: add secure pre-consultation intake`). The worktree contains the uncommitted WHO paediatric growth-reference increment and this status update.
 
 ## Recommended next work
 
-1. Add age- and sex-specific WHO paediatric growth-reference calculations without applying adult cut-offs to children.
+1. Browser-validate one under-five and one adolescent measurement, including the stored WHO version and the absence of weight-for-age after 10 years.
 2. Continue appointment operations with Google Calendar synchronization.
 3. Review the nutritionist's response and approve a licensed regional food-data source before adding individual foods.
 4. Configure and validate one Twilio Sandbox reminder, then complete a separate production consent, provider, and signed-webhook design before enabling patient delivery.
@@ -60,4 +63,4 @@ Ask which food-composition table and edition are used in Guatemala, whether the 
 
 ## Resume instruction
 
-Read this file, `docs/ROADMAP.md`, and the newest plan under `docs/plans/` before continuing. Verify `git status` and the latest commit. The next recommended product increment is paediatric growth-reference calculation. Food-data work resumes only after reviewing the nutritionist's answers and any source or licensing documents the user provides.
+Read this file, `docs/ROADMAP.md`, and the newest plan under `docs/plans/` before continuing. Verify `git status` and the latest commit. Finish the focused browser validation for paediatric growth, then continue with Google Calendar synchronization. Food-data work resumes only after reviewing the nutritionist's answers and any source or licensing documents the user provides.

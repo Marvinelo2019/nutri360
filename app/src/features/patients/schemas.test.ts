@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { measurementSchema, normalizePhone, patientSchema } from "./schemas";
+import {
+  adultMeasurementSchema,
+  measurementSchema,
+  normalizePhone,
+  patientSchema,
+} from "./schemas";
 
 describe("patient schemas", () => {
   it("normalizes Guatemala phone numbers", () => {
@@ -18,20 +23,27 @@ describe("patient schemas", () => {
     expect(result.success).toBe(false);
   });
 
-  it("limits adult measurement ranges", () => {
+  it("accepts paediatric bounds and separately enforces adult bounds", () => {
     expect(
-      measurementSchema.safeParse({
+      adultMeasurementSchema.safeParse({
         patientId: crypto.randomUUID(),
         weightKg: 70,
         heightCm: 175,
       }).success,
     ).toBe(true);
     expect(
-      measurementSchema.safeParse({
+      adultMeasurementSchema.safeParse({
         patientId: crypto.randomUUID(),
         weightKg: 10,
         heightCm: 175,
       }).success,
     ).toBe(false);
+    expect(
+      measurementSchema.safeParse({
+        patientId: crypto.randomUUID(),
+        weightKg: 10,
+        heightCm: 75,
+      }).success,
+    ).toBe(true);
   });
 });

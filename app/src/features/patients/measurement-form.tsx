@@ -8,21 +8,34 @@ import {
 } from "@/lib/nutrition/anthropometry";
 
 import { recordMeasurementAction } from "./actions";
+import { isUnder18 } from "./paediatric-growth";
 import { initialMeasurementState } from "./schemas";
 
-export function MeasurementForm({ patientId }: { patientId: string }) {
+export function MeasurementForm({
+  patientId,
+  birthDate,
+  growthReferenceSex,
+}: {
+  patientId: string;
+  birthDate: string;
+  growthReferenceSex: "female" | "male" | null;
+}) {
   const [state, action, pending] = useActionState(
     recordMeasurementAction,
     initialMeasurementState,
   );
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
+  const isPaediatric = isUnder18(birthDate);
   const preview = useMemo(() => {
     const values = [Number(weight), Number(height)];
-    return values.every(Number.isFinite) && values[0] >= 20 && values[1] >= 50
+    return !isPaediatric &&
+      values.every(Number.isFinite) &&
+      values[0] >= 20 &&
+      values[1] >= 50
       ? calculateAdultAnthropometry(values[0], values[1])
       : null;
-  }, [weight, height]);
+  }, [height, isPaediatric, weight]);
 
   return (
     <form action={action} className="panel p-5 sm:p-6" noValidate>
@@ -31,54 +44,64 @@ export function MeasurementForm({ patientId }: { patientId: string }) {
         <div>
           <h2 className="text-base font-semibold">Nueva medición</h2>
           <p className="mt-1 text-sm text-[var(--text-muted)]">
-            Cálculo adulto a partir de peso y talla.
+            {isPaediatric
+              ? "Indicadores de crecimiento por edad con referencia OMS."
+              : "Cálculo adulto a partir de peso y talla."}
           </p>
         </div>
         <span className="rounded-full bg-[var(--brand-50)] px-2.5 py-1 text-[0.68rem] font-semibold text-[var(--brand-700)]">
-          18+ años
+          {isPaediatric ? "Menor de 18 · OMS" : "18+ años"}
         </span>
       </div>
-      <details className="mt-5 border-t border-[var(--line)] pt-4">
-        <summary className="cursor-pointer text-sm font-semibold text-[var(--brand-700)]">
-          Agregar circunferencias y pliegues
-        </summary>
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          {[
-            ["waistCm", "Cintura (cm)"],
-            ["hipCm", "Cadera (cm)"],
-            ["armCm", "Brazo (cm)"],
-            ["thighCm", "Muslo (cm)"],
-            ["calfCm", "Pantorrilla (cm)"],
-            ["tricepsMm", "Pliegue tríceps (mm)"],
-            ["subscapularMm", "Pliegue subescapular (mm)"],
-            ["suprailiacMm", "Pliegue suprailiaco (mm)"],
-            ["abdominalMm", "Pliegue abdominal (mm)"],
-          ].map(([name, label]) => (
-            <div key={name}>
-              <label className="field-label" htmlFor={name}>
-                {label}
-              </label>
-              <input
-                className="field-input"
-                id={name}
-                name={name}
-                min="0"
-                step="0.1"
-                type="number"
-              />
-              {state.errors?.[name]?.[0] && (
-                <p className="mt-1 text-xs text-[var(--danger)]">
-                  {state.errors[name][0]}
-                </p>
-              )}
-            </div>
-          ))}
+      {isPaediatric && !growthReferenceSex && (
+        <div className="form-error mt-4">
+          Define el sexo de referencia en el perfil antes de registrar una
+          medición pediátrica.
         </div>
-        <p className="mt-3 text-xs leading-5 text-[var(--text-muted)]">
-          La relación cintura-cadera se calcula cuando ambas medidas están
-          presentes. Los pliegues se conservan como mediciones directas.
-        </p>
-      </details>
+      )}
+      {!isPaediatric && (
+        <details className="mt-5 border-t border-[var(--line)] pt-4">
+          <summary className="cursor-pointer text-sm font-semibold text-[var(--brand-700)]">
+            Agregar circunferencias y pliegues
+          </summary>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {[
+              ["waistCm", "Cintura (cm)"],
+              ["hipCm", "Cadera (cm)"],
+              ["armCm", "Brazo (cm)"],
+              ["thighCm", "Muslo (cm)"],
+              ["calfCm", "Pantorrilla (cm)"],
+              ["tricepsMm", "Pliegue tríceps (mm)"],
+              ["subscapularMm", "Pliegue subescapular (mm)"],
+              ["suprailiacMm", "Pliegue suprailiaco (mm)"],
+              ["abdominalMm", "Pliegue abdominal (mm)"],
+            ].map(([name, label]) => (
+              <div key={name}>
+                <label className="field-label" htmlFor={name}>
+                  {label}
+                </label>
+                <input
+                  className="field-input"
+                  id={name}
+                  name={name}
+                  min="0"
+                  step="0.1"
+                  type="number"
+                />
+                {state.errors?.[name]?.[0] && (
+                  <p className="mt-1 text-xs text-[var(--danger)]">
+                    {state.errors[name][0]}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-xs leading-5 text-[var(--text-muted)]">
+            La relación cintura-cadera se calcula cuando ambas medidas están
+            presentes. Los pliegues se conservan como mediciones directas.
+          </p>
+        </details>
+      )}
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div>
           <label className="field-label" htmlFor="weightKg">
@@ -89,7 +112,7 @@ export function MeasurementForm({ patientId }: { patientId: string }) {
             id="weightKg"
             name="weightKg"
             type="number"
-            min="20"
+            min={isPaediatric ? "0.5" : "20"}
             max="300"
             step="0.01"
             value={weight}
@@ -108,7 +131,7 @@ export function MeasurementForm({ patientId }: { patientId: string }) {
             id="heightCm"
             name="heightCm"
             type="number"
-            min="50"
+            min={isPaediatric ? "20" : "50"}
             max="250"
             step="0.01"
             value={height}
@@ -137,6 +160,13 @@ export function MeasurementForm({ patientId }: { patientId: string }) {
           </div>
         </div>
       )}
+      {isPaediatric && (
+        <p className="mt-4 text-xs leading-5 text-[var(--text-muted)]">
+          Se calcularán IMC, talla y, cuando corresponda por edad, peso para la
+          edad. Estos indicadores apoyan el tamizaje clínico y no constituyen un
+          diagnóstico.
+        </p>
+      )}
       {state.message && (
         <div
           className={
@@ -146,7 +176,10 @@ export function MeasurementForm({ patientId }: { patientId: string }) {
           {state.message}
         </div>
       )}
-      <button className="button-primary mt-5 w-full" disabled={pending}>
+      <button
+        className="button-primary mt-5 w-full"
+        disabled={pending || (isPaediatric && !growthReferenceSex)}
+      >
         {pending ? "Guardando…" : "Guardar en historial"}
       </button>
     </form>

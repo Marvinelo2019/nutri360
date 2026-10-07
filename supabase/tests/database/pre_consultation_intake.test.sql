@@ -27,7 +27,7 @@ select lives_ok(
   $$select public.create_intake_invite((select id from public.patients where first_name='Preconsulta'),repeat('a',64),now()+interval '7 days')$$,
   'owner creates an expiring invitation'
 );
-select results_eq($$select count(*) from public.intake_invites$$,array[1::bigint],'owner reads the invitation');
+select results_eq($$select count(*) from public.intake_invites where organization_id='2c000000-0000-0000-0000-000000000001'$$,array[1::bigint],'owner reads the invitation');
 select throws_ok(
   $$select public.create_intake_invite((select id from public.patients where first_name='Preconsulta'),repeat('b',64),now()+interval '31 days')$$,
   'P0001','Invalid invitation expiry','invitation expiry is bounded'
@@ -60,11 +60,14 @@ select lives_ok(
 );
 reset role;
 select results_eq(
-  $$select allergies || '|' || water_liters from public.intake_submissions$$,
+  $$select submissions.allergies || '|' || submissions.water_liters
+    from public.intake_submissions submissions
+    join public.intake_invites invites on invites.id=submissions.invite_id
+    where invites.token_hash=repeat('a',64)$$,
   array['Penicilina|2.50'::text],
   'submitted answers are stored with explicit units'
 );
-select results_eq($$select count(*) from public.intake_invites where completed_at is not null$$,array[1::bigint],'successful submission completes the invitation');
+select results_eq($$select count(*) from public.intake_invites where token_hash=repeat('a',64) and completed_at is not null$$,array[1::bigint],'successful submission completes the invitation');
 set local role service_role;
 select throws_ok(
   $$select public.submit_public_intake(repeat('a',64),null,null,null,null,null,null,null,null,null,null,null,'pre-consultation-v1')$$,
@@ -73,16 +76,17 @@ select throws_ok(
 select results_eq($$select count(*) from public.get_public_intake_context(repeat('a',64))$$,array[0::bigint],'completed link exposes no context');
 reset role;
 select throws_ok(
-  $$update public.intake_submissions set allergies='Changed'$$,
+  $$update public.intake_submissions set allergies='Changed'
+    where invite_id=(select id from public.intake_invites where token_hash=repeat('a',64))$$,
   'P0001','Intake submissions are immutable','submitted answers cannot be changed'
 );
 
 reset role;
 set local role authenticated;
 set local request.jwt.claim.sub='1c000000-0000-0000-0000-000000000001';
-select results_eq($$select count(*) from public.intake_submissions$$,array[1::bigint],'owner can review the submission');
-select cmp_ok((select count(*) from public.audit_events where entity_type='intake_invites'),'=',2::bigint,'invitation creation and completion are audited');
-select results_eq($$select count(*) from public.audit_events where entity_type='intake_submissions'$$,array[1::bigint],'submission creation is audited without answers');
+select results_eq($$select count(*) from public.intake_submissions where organization_id='2c000000-0000-0000-0000-000000000001'$$,array[1::bigint],'owner can review the submission');
+select cmp_ok((select count(*) from public.audit_events where organization_id='2c000000-0000-0000-0000-000000000001' and entity_type='intake_invites'),'=',2::bigint,'invitation creation and completion are audited');
+select results_eq($$select count(*) from public.audit_events where organization_id='2c000000-0000-0000-0000-000000000001' and entity_type='intake_submissions'$$,array[1::bigint],'submission creation is audited without answers');
 select lives_ok(
   $$select public.create_intake_invite((select id from public.patients where first_name='Preconsulta'),repeat('c',64),now()+interval '7 days')$$,
   'owner creates a replacement invitation'

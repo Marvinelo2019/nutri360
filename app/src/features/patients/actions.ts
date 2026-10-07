@@ -7,11 +7,13 @@ import { requireWorkspace } from "@/lib/auth/session";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 import {
+  adultMeasurementSchema,
   measurementSchema,
   patientSchema,
   type MeasurementFormState,
   type PatientFormState,
 } from "./schemas";
+import { isUnder18 } from "./paediatric-growth";
 
 export async function createPatientAction(
   _state: PatientFormState,
@@ -98,19 +100,77 @@ export async function recordMeasurementAction(
   }
 
   const supabase = await createServerSupabaseClient();
+  const { data: patient, error: patientError } = await supabase
+    .from("patients")
+    .select("birth_date")
+    .eq("id", parsed.data.patientId)
+    .eq("organization_id", workspace.id)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (patientError || !patient) {
+    return { status: "error", message: "No encontramos al paciente." };
+  }
+
+  const isPaediatric = isUnder18(patient.birth_date);
+
+  if (isPaediatric) {
+    const hasAdultOnlyMeasurements = [
+      parsed.data.waistCm,
+      parsed.data.hipCm,
+      parsed.data.armCm,
+      parsed.data.thighCm,
+      parsed.data.calfCm,
+      parsed.data.tricepsMm,
+      parsed.data.subscapularMm,
+      parsed.data.suprailiacMm,
+      parsed.data.abdominalMm,
+    ].some((value) => value !== undefined);
+    if (hasAdultOnlyMeasurements) {
+      return {
+        status: "error",
+        message: "En pacientes pediátricos registra únicamente peso y talla.",
+      };
+    }
+    const { error } = await supabase.rpc("record_paediatric_anthropometry", {
+      target_patient_id: parsed.data.patientId,
+      measured_weight_kg: parsed.data.weightKg,
+      measured_height_cm: parsed.data.heightCm,
+    });
+    if (error) {
+      return {
+        status: "error",
+        message: error.message.includes("reference sex")
+          ? "Selecciona el sexo de referencia del paciente antes de calcular su crecimiento."
+          : "No pudimos calcular los indicadores de crecimiento.",
+      };
+    }
+    revalidatePath(`/pacientes/${parsed.data.patientId}`);
+    revalidatePath("/dashboard");
+    return {
+      status: "success",
+      message: "Medición pediátrica guardada con referencia OMS.",
+    };
+  }
+
+  const adultParsed = adultMeasurementSchema.safeParse(
+    Object.fromEntries(formData),
+  );
+  if (!adultParsed.success) {
+    return { status: "error", errors: adultParsed.error.flatten().fieldErrors };
+  }
   const { error } = await supabase.rpc("record_extended_adult_anthropometry", {
-    target_patient_id: parsed.data.patientId,
-    measured_weight_kg: parsed.data.weightKg,
-    measured_height_cm: parsed.data.heightCm,
-    measured_waist_cm: parsed.data.waistCm ?? null,
-    measured_hip_cm: parsed.data.hipCm ?? null,
-    measured_arm_cm: parsed.data.armCm ?? null,
-    measured_thigh_cm: parsed.data.thighCm ?? null,
-    measured_calf_cm: parsed.data.calfCm ?? null,
-    measured_triceps_mm: parsed.data.tricepsMm ?? null,
-    measured_subscapular_mm: parsed.data.subscapularMm ?? null,
-    measured_suprailiac_mm: parsed.data.suprailiacMm ?? null,
-    measured_abdominal_mm: parsed.data.abdominalMm ?? null,
+    target_patient_id: adultParsed.data.patientId,
+    measured_weight_kg: adultParsed.data.weightKg,
+    measured_height_cm: adultParsed.data.heightCm,
+    measured_waist_cm: adultParsed.data.waistCm ?? null,
+    measured_hip_cm: adultParsed.data.hipCm ?? null,
+    measured_arm_cm: adultParsed.data.armCm ?? null,
+    measured_thigh_cm: adultParsed.data.thighCm ?? null,
+    measured_calf_cm: adultParsed.data.calfCm ?? null,
+    measured_triceps_mm: adultParsed.data.tricepsMm ?? null,
+    measured_subscapular_mm: adultParsed.data.subscapularMm ?? null,
+    measured_suprailiac_mm: adultParsed.data.suprailiacMm ?? null,
+    measured_abdominal_mm: adultParsed.data.abdominalMm ?? null,
   });
   if (error) {
     return {

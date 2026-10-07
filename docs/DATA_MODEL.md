@@ -29,7 +29,9 @@ Store timestamps in UTC and render them using the organization's time zone. Stor
 - `intake_invites`: patient-scoped pre-consultation invitation with a one-way token hash, consent version, expiration, completion, revocation, and creating professional. Raw bearer tokens are never stored.
 - `intake_submissions`: immutable patient-provided health and dietary answers linked one-to-one to an invitation, with organization/patient ownership and a versioned consent snapshot. These remain separate from clinician-maintained histories until professional review.
 - `consultations`: date, SOAP fields, clinical summary, responsible professional.
-- `anthropometric_measurements`: weight, height, circumferences, skinfolds, body fat, calculated indicators, and units.
+- `anthropometric_measurements`: immutable adult or paediatric calculation snapshots. Adult rows preserve BMI, adult classification, normal-weight range, optional circumferences/skinfolds, and body-fat estimate. Paediatric rows preserve exact age in days/months, WHO 2006/2007 version, BMI-for-age and height-for-age z-scores, weight-for-age through 120 months, neutral classifications, and plausibility flags; adult-only outputs remain null.
+- `who_growth_reference_sources`: global read-only registry of the 12 official WHO workbooks used for paediatric growth, including URL, version, indicator, sex, age unit, and SHA-256 checksum.
+- `who_growth_reference_parameters`: global read-only LMS parameters generated deterministically from the registered WHO workbooks and keyed by source and age value. Browser roles have no direct table privileges.
 - `lab_results`: test, value, unit, reference bounds, collected date, and notes.
 - `patient_progress_entries`: patient-entered weight and note.
 

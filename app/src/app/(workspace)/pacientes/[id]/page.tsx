@@ -5,6 +5,12 @@ import { Icon } from "@/components/icon";
 import { getPatient } from "@/features/patients/data";
 import { MeasurementForm } from "@/features/patients/measurement-form";
 import { ProgressChart } from "@/features/patients/progress-chart";
+import {
+  isUnder18,
+  paediatricBmiLabels,
+  paediatricHeightLabels,
+  paediatricWeightLabels,
+} from "@/features/patients/paediatric-growth";
 import { patientPackageStateLabels } from "@/features/packages/presentation";
 import {
   bmiLabels,
@@ -31,6 +37,7 @@ export default async function PatientPage({
   const record = await getPatient(id);
   if (!record) notFound();
   const latest = record.measurements[0];
+  const isPaediatric = isUnder18(record.patient.birth_date);
 
   return (
     <div className="mx-auto max-w-[88rem]">
@@ -254,14 +261,16 @@ export default async function PatientPage({
                       Estimaciones versionadas de energía y macronutrientes.
                     </p>
                   </div>
-                  {latest && record.patient.growth_reference_sex && (
-                    <Link
-                      className="button-secondary"
-                      href={`/pacientes/${id}/calculos/nuevo`}
-                    >
-                      Nuevo cálculo
-                    </Link>
-                  )}
+                  {!isPaediatric &&
+                    latest &&
+                    record.patient.growth_reference_sex && (
+                      <Link
+                        className="button-secondary"
+                        href={`/pacientes/${id}/calculos/nuevo`}
+                      >
+                        Nuevo cálculo
+                      </Link>
+                    )}
                 </div>
                 {record.energyCalculations.length ? (
                   <div className="divide-y divide-[var(--line)]">
@@ -301,18 +310,22 @@ export default async function PatientPage({
                 ) : (
                   <div className="px-6 py-9 text-center">
                     <p className="text-sm text-[var(--text-muted)]">
-                      {latest && record.patient.growth_reference_sex
-                        ? "Aún no hay cálculos guardados."
-                        : "Registra peso, talla y sexo de referencia para calcular."}
+                      {isPaediatric
+                        ? "Los cálculos de energía pediátricos no están incluidos en esta etapa."
+                        : latest && record.patient.growth_reference_sex
+                          ? "Aún no hay cálculos guardados."
+                          : "Registra peso, talla y sexo de referencia para calcular."}
                     </p>
-                    {latest && record.patient.growth_reference_sex && (
-                      <Link
-                        className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-700)] hover:underline"
-                        href={`/pacientes/${id}/calculos/nuevo`}
-                      >
-                        Crear el primer cálculo
-                      </Link>
-                    )}
+                    {!isPaediatric &&
+                      latest &&
+                      record.patient.growth_reference_sex && (
+                        <Link
+                          className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-700)] hover:underline"
+                          href={`/pacientes/${id}/calculos/nuevo`}
+                        >
+                          Crear el primer cálculo
+                        </Link>
+                      )}
                   </div>
                 )}
               </section>
@@ -358,11 +371,11 @@ export default async function PatientPage({
                               {m.waist_cm == null ? "—" : `${m.waist_cm} cm`}
                             </td>
                             <td className="px-4 py-4">
-                              {
-                                bmiLabels[
-                                  m.bmi_classification as BmiClassification
-                                ]
-                              }
+                              {m.calculation_pathway === "paediatric"
+                                ? `${paediatricBmiLabels[m.bmi_for_age_classification ?? ""] ?? "Sin clasificar"} (z ${m.bmi_for_age_z})`
+                                : bmiLabels[
+                                    m.bmi_classification as BmiClassification
+                                  ]}
                             </td>
                           </tr>
                         ))}
@@ -388,7 +401,11 @@ export default async function PatientPage({
         </div>
         {record.canViewClinical && (
           <aside className="space-y-5">
-            <MeasurementForm patientId={id} />
+            <MeasurementForm
+              patientId={id}
+              birthDate={record.patient.birth_date}
+              growthReferenceSex={record.patient.growth_reference_sex}
+            />
             {latest && (
               <section className="panel p-5">
                 <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-faint)]">
@@ -397,14 +414,67 @@ export default async function PatientPage({
                 <p className="mt-3 text-3xl font-semibold tracking-tight">
                   {latest.bmi}
                 </p>
-                <p className="mt-1 text-sm text-[var(--text-muted)]">
-                  IMC ·{" "}
-                  {bmiLabels[latest.bmi_classification as BmiClassification]}
-                </p>
-                <div className="mt-4 border-t border-[var(--line)] pt-4 text-xs leading-5 text-[var(--text-muted)]">
-                  Rango de peso por IMC: {latest.normal_weight_min_kg}–
-                  {latest.normal_weight_max_kg} kg
-                </div>
+                {latest.calculation_pathway === "paediatric" ? (
+                  <div className="mt-1 space-y-2 text-sm text-[var(--text-muted)]">
+                    <p>
+                      IMC/edad ·{" "}
+                      {
+                        paediatricBmiLabels[
+                          latest.bmi_for_age_classification ?? ""
+                        ]
+                      }{" "}
+                      · z {latest.bmi_for_age_z}
+                    </p>
+                    <p>
+                      Talla/edad ·{" "}
+                      {
+                        paediatricHeightLabels[
+                          latest.height_for_age_classification ?? ""
+                        ]
+                      }{" "}
+                      · z {latest.height_for_age_z}
+                    </p>
+                    {latest.weight_for_age_z != null && (
+                      <p>
+                        Peso/edad ·{" "}
+                        {
+                          paediatricWeightLabels[
+                            latest.weight_for_age_classification ?? ""
+                          ]
+                        }{" "}
+                        · z {latest.weight_for_age_z}
+                      </p>
+                    )}
+                    {latest.plausibility_flags.length > 0 && (
+                      <p className="rounded-lg border border-[var(--warning)] px-3 py-2 text-xs">
+                        Hay valores fuera de los límites de plausibilidad de la
+                        OMS. Verifica las mediciones antes de interpretarlas.
+                      </p>
+                    )}
+                    <p className="border-t border-[var(--line)] pt-3 text-xs">
+                      Referencia{" "}
+                      {latest.growth_reference_version === "who-2006"
+                        ? "OMS 2006"
+                        : "OMS 2007"}{" "}
+                      · tamizaje, no diagnóstico
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="mt-1 text-sm text-[var(--text-muted)]">
+                      IMC ·{" "}
+                      {
+                        bmiLabels[
+                          latest.bmi_classification as BmiClassification
+                        ]
+                      }
+                    </p>
+                    <div className="mt-4 border-t border-[var(--line)] pt-4 text-xs leading-5 text-[var(--text-muted)]">
+                      Rango de peso por IMC: {latest.normal_weight_min_kg}–
+                      {latest.normal_weight_max_kg} kg
+                    </div>
+                  </>
+                )}
               </section>
             )}
           </aside>

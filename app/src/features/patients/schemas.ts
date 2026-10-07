@@ -44,11 +44,11 @@ export const measurementSchema = z.object({
   patientId: z.uuid(),
   weightKg: z.coerce
     .number()
-    .min(20, "Mínimo 20 kg.")
+    .min(0.5, "Mínimo 0.5 kg.")
     .max(300, "Máximo 300 kg."),
   heightCm: z.coerce
     .number()
-    .min(50, "Mínimo 50 cm.")
+    .min(20, "Mínimo 20 cm.")
     .max(250, "Máximo 250 cm."),
   waistCm: optionalMeasurement(30, 250),
   hipCm: optionalMeasurement(30, 250),
@@ -59,6 +59,17 @@ export const measurementSchema = z.object({
   subscapularMm: optionalMeasurement(1, 100),
   suprailiacMm: optionalMeasurement(1, 100),
   abdominalMm: optionalMeasurement(1, 100),
+});
+
+export const adultMeasurementSchema = measurementSchema.extend({
+  weightKg: z.coerce
+    .number()
+    .min(20, "Mínimo 20 kg para el cálculo adulto.")
+    .max(300, "Máximo 300 kg."),
+  heightCm: z.coerce
+    .number()
+    .min(50, "Mínimo 50 cm para el cálculo adulto.")
+    .max(250, "Máximo 250 cm."),
 });
 
 export type PatientFormState = {
