@@ -4,10 +4,12 @@ import { Icon, type IconName } from "@/components/icon";
 import { getDailyAgenda } from "@/features/appointments/data";
 import { appointmentModalityLabels } from "@/features/appointments/presentation";
 import { getActiveMealPlanCount } from "@/features/meal-plans/data";
+import { getPackageBalanceSummary } from "@/features/packages/data";
 import { getPatientCount } from "@/features/patients/data";
-import { getMonthlyPaymentSummary } from "@/features/payments/data";
+import { getMonthlyReportSummary } from "@/features/reports/data";
 import { requireWorkspace } from "@/lib/auth/session";
 import {
+  clinicDateKey,
   formatClinicDate,
   formatClinicTime,
   formatCurrency,
@@ -15,61 +17,53 @@ import {
 
 export const metadata = { title: "Inicio" };
 
-const baseMetrics: Array<{
-  label: string;
-  value: string;
-  note: string;
-  icon: IconName;
-}> = [
-  {
-    label: "Citas de hoy",
-    value: "0",
-    note: "Sin citas programadas",
-    icon: "calendar",
-  },
-  {
-    label: "Planes activos",
-    value: "0",
-    note: "Aún sin planes",
-    icon: "clipboard",
-  },
-  {
-    label: "Ingresos del mes",
-    value: formatCurrency(0),
-    note: "Mes actual",
-    icon: "payments",
-  },
-];
+const percentFormat = new Intl.NumberFormat("es-GT", {
+  style: "percent",
+  maximumFractionDigits: 1,
+});
 
 export default async function DashboardPage() {
   const { fullName, workspace } = await requireWorkspace();
-  const [patientCount, todayAppointments, activePlanCount, paymentSummary] =
-    await Promise.all([
-      getPatientCount(),
-      getDailyAgenda(),
-      getActiveMealPlanCount(),
-      getMonthlyPaymentSummary(),
-    ]);
+  const currentMonth = clinicDateKey().slice(0, 7);
+  const [
+    patientCount,
+    todayAppointments,
+    activePlanCount,
+    monthlySummary,
+    packageSummary,
+  ] = await Promise.all([
+    getPatientCount(),
+    getDailyAgenda(),
+    getActiveMealPlanCount(),
+    getMonthlyReportSummary(currentMonth),
+    getPackageBalanceSummary(),
+  ]);
   const activeTodayAppointments = todayAppointments.filter(
     (appointment) => !["cancelled", "rescheduled"].includes(appointment.status),
   );
   const firstName = fullName.split(/\s+/)[0];
-  const metrics = [
+  const metrics: Array<{
+    label: string;
+    value: string;
+    note: string;
+    icon: IconName;
+  }> = [
     {
-      ...baseMetrics[0],
+      label: "Citas de hoy",
       value: String(activeTodayAppointments.length),
       note: activeTodayAppointments.length
         ? "Consultas programadas"
         : "Sin citas programadas",
+      icon: "calendar",
     },
     {
       label: "Pacientes activos",
       value: String(patientCount),
       note: patientCount ? "Expedientes vigentes" : "Aún sin registros",
-      icon: "patients" as IconName,
+      icon: "patients",
     },
     {
-      ...baseMetrics[1],
+      label: "Planes activos",
       value: String(activePlanCount),
       note:
         workspace.role === "assistant"
@@ -77,10 +71,42 @@ export default async function DashboardPage() {
           : activePlanCount
             ? "Planes vigentes"
             : "Aún sin planes",
+      icon: "clipboard",
     },
     {
-      ...baseMetrics[2],
-      value: formatCurrency(paymentSummary.paidCentavos),
+      label: "Ausencias del mes",
+      value: String(monthlySummary.noShowCount),
+      note:
+        monthlySummary.noShowRate === null
+          ? "Sin citas resueltas"
+          : `${percentFormat.format(monthlySummary.noShowRate)} de citas resueltas`,
+      icon: "calendar",
+    },
+    {
+      label: "Ingresos del mes",
+      value: formatCurrency(monthlySummary.paidCentavos),
+      note: "Pagos efectivos",
+      icon: "payments",
+    },
+    {
+      label: "Saldo pendiente",
+      value: formatCurrency(monthlySummary.pendingCentavos),
+      note: "Movimientos pendientes",
+      icon: "payments",
+    },
+    {
+      label: "Paquetes activos",
+      value: String(packageSummary.activePackageCount),
+      note: packageSummary.activePackageCount
+        ? "Con saldo disponible"
+        : "Sin paquetes activos",
+      icon: "payments",
+    },
+    {
+      label: "Sesiones disponibles",
+      value: String(packageSummary.availableSessions),
+      note: "Saldo en paquetes activos",
+      icon: "dashboard",
     },
   ];
 
@@ -96,10 +122,15 @@ export default async function DashboardPage() {
             Este es el estado actual de tu práctica.
           </p>
         </div>
-        <Link className="button-primary sm:w-auto" href="/pacientes/nuevo">
-          <Icon name="plus" className="size-4" />
-          Nuevo paciente
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link className="button-secondary min-h-12" href="/reportes">
+            Ver reporte mensual
+          </Link>
+          <Link className="button-primary sm:w-auto" href="/pacientes/nuevo">
+            <Icon name="plus" className="size-4" />
+            Nuevo paciente
+          </Link>
+        </div>
       </div>
 
       <section
@@ -193,7 +224,7 @@ export default async function DashboardPage() {
           <ol className="divide-y divide-[var(--line)] px-5">
             {[
               ["Consultorio creado", "Completado", true],
-              ["Personalizar identidad", "Próximamente", false],
+              ["Identidad visual disponible", "Completado", true],
               [
                 "Registrar primer paciente",
                 patientCount ? "Completado" : "Pendiente",

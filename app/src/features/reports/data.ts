@@ -7,6 +7,62 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { monthBounds, reportMonthSchema } from "./schemas";
 import { calculateMonthlySummary } from "./summary";
 
+export async function getMonthlyReportSummary(requestedMonth: string) {
+  const month = reportMonthSchema.parse(requestedMonth);
+  const { firstDate, nextFirstDate } = monthBounds(month);
+  const { workspace } = await requireWorkspace();
+  const supabase = await createServerSupabaseClient();
+  const [
+    { data: appointments, error: appointmentsError },
+    { data: payments, error: paymentsError },
+    { data: packageSales, error: packageSalesError },
+  ] = await Promise.all([
+    supabase.rpc("list_appointments_for_local_month", {
+      target_organization_id: workspace.id,
+      target_month: firstDate,
+    }),
+    supabase.rpc("list_payments_for_local_month", {
+      target_organization_id: workspace.id,
+      target_month: firstDate,
+    }),
+    supabase
+      .from("patient_packages")
+      .select("id, total_sessions")
+      .eq("organization_id", workspace.id)
+      .gte("purchased_on", firstDate)
+      .lt("purchased_on", nextFirstDate),
+  ]);
+  if (appointmentsError) throw appointmentsError;
+  if (paymentsError) throw paymentsError;
+  if (packageSalesError) throw packageSalesError;
+
+  const appointmentIds = appointments.map((appointment) => appointment.id);
+  const { data: usages, error: usagesError } = appointmentIds.length
+    ? await supabase
+        .from("package_usages")
+        .select("id, kind, reverses_usage_id")
+        .in("appointment_id", appointmentIds)
+    : { data: [], error: null };
+  if (usagesError) throw usagesError;
+
+  const reversedConsumptionIds = new Set(
+    (usages ?? [])
+      .filter((usage) => usage.kind === "reversal" && usage.reverses_usage_id)
+      .map((usage) => usage.reverses_usage_id as string),
+  );
+  const sessionsConsumed = (usages ?? []).filter(
+    (usage) =>
+      usage.kind === "consumption" && !reversedConsumptionIds.has(usage.id),
+  ).length;
+
+  return calculateMonthlySummary({
+    appointments,
+    payments,
+    packageSales,
+    sessionsConsumed,
+  });
+}
+
 export async function getMonthlyReport(requestedMonth: string) {
   const month = reportMonthSchema.parse(requestedMonth);
   const { firstDate, nextFirstDate } = monthBounds(month);

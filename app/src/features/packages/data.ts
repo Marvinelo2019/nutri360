@@ -6,6 +6,51 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 import { patientPackageDisplayState } from "./presentation";
 
+export async function getPackageBalanceSummary() {
+  const { workspace } = await requireWorkspace();
+  const supabase = await createServerSupabaseClient();
+  const { data: purchases, error: purchasesError } = await supabase
+    .from("patient_packages")
+    .select("id, total_sessions, status, expires_on")
+    .eq("organization_id", workspace.id);
+  if (purchasesError) throw purchasesError;
+
+  const purchaseIds = purchases.map((purchase) => purchase.id);
+  const { data: usages, error: usagesError } = purchaseIds.length
+    ? await supabase
+        .from("package_usages")
+        .select("patient_package_id, session_delta")
+        .in("patient_package_id", purchaseIds)
+    : { data: [], error: null };
+  if (usagesError) throw usagesError;
+
+  const deltas = new Map<string, number>();
+  for (const usage of usages ?? []) {
+    deltas.set(
+      usage.patient_package_id,
+      (deltas.get(usage.patient_package_id) ?? 0) + usage.session_delta,
+    );
+  }
+  const activeBalances = purchases
+    .map((purchase) => {
+      const remainingSessions =
+        purchase.total_sessions + (deltas.get(purchase.id) ?? 0);
+      return {
+        remainingSessions,
+        displayState: patientPackageDisplayState(purchase, remainingSessions),
+      };
+    })
+    .filter((purchase) => purchase.displayState === "active");
+
+  return {
+    activePackageCount: activeBalances.length,
+    availableSessions: activeBalances.reduce(
+      (total, purchase) => total + purchase.remainingSessions,
+      0,
+    ),
+  };
+}
+
 export async function getPackagesOverview() {
   const { workspace } = await requireWorkspace();
   const supabase = await createServerSupabaseClient();

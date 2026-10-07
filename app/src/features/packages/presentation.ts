@@ -17,7 +17,7 @@ export const patientPackageStateLabels: Record<
 };
 
 export function patientPackageDisplayState(
-  patientPackage: PatientPackage,
+  patientPackage: Pick<PatientPackage, "status" | "expires_on">,
   remainingSessions: number,
   today = clinicDateKey(),
 ): PatientPackageDisplayState {
