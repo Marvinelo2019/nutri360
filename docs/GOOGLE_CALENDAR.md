@@ -52,9 +52,11 @@ curl --fail --request POST \
 
 The endpoint uses leased jobs, deterministic Google event IDs, bounded retries, and sanitized error codes. Appointment creation never waits for Google.
 
+In local development, queued changes are processed with **Sincronizar ahora**. Automatic processing begins only after the deployment platform schedules this endpoint, recommended approximately every five minutes.
+
 ## Synthetic validation
 
-1. Sign in as an owner or nutritionist and open **Agenda → Configuración**.
+1. Sign in as an owner or nutritionist and open **Agenda → Reservas públicas**.
 2. Select **Conectar Google Calendar** and grant access with the test Google account.
 3. Confirm that availability and event synchronization timestamps appear without exposing the refresh token.
 4. Create a synthetic future appointment and select **Sincronizar ahora**.

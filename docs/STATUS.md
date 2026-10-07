@@ -10,7 +10,7 @@ The secure pre-consultation intake increment is complete and browser-validated. 
 
 The WHO paediatric growth-reference increment is complete and browser-validated. The user registered the suggested under-five and adolescent test patients, entered their weight and height, and confirmed the age-aware WHO messages in both records. For patients under 18, weight and height produce sex- and age-specific BMI-for-age and height-for-age z-scores using WHO 2006 (through 60 months) or WHO 2007 (from 61 months); weight-for-age is included only through 120 months. Results preserve the exact age, source version, classifications, plausibility flags, and calculation pathway without applying adult BMI cut-offs or presenting the output as a diagnosis.
 
-The privacy-preserving Google Calendar synchronization increment is complete. Live testing validated OAuth connection, Google free/busy refresh, and successful export of two synthetic appointments after correcting the worker's least-privilege access to appointment timing. Each owner or nutritionist can connect their own primary calendar; Nutri360 exports generic private events without patient identity, imports only free/busy timestamps, blocks fresh conflicts in internal and public scheduling, and processes changes through an idempotent retryable worker. Google-side edits never mutate Nutri360 patient or appointment records. Live cancellation, public-slot conflict, and disconnect checks remain pending.
+The privacy-preserving Google Calendar synchronization increment is complete. Live browser testing validated OAuth connection, Google free/busy refresh, and correct export of two synthetic appointments after correcting the worker's least-privilege access to appointment timing. The user confirmed that both events synchronize correctly in Google Calendar. Each owner or nutritionist can connect their own primary calendar; Nutri360 exports generic private events without patient identity, imports only free/busy timestamps, blocks fresh conflicts in internal and public scheduling, and processes changes through an idempotent retryable worker. Google-side edits never mutate Nutri360 patient or appointment records. Local development currently requires **Sincronizar ahora**; automatic processing every five minutes remains a deployment task. Live cancellation, public-slot conflict, and disconnect checks remain pending.
 
 A Twilio WhatsApp Sandbox adapter is committed and awaits account credentials plus one live test. It is intentionally restricted to one organization and one joined test number; production patient delivery remains disabled.
 
@@ -55,7 +55,7 @@ The paediatric validation checkpoint is `4df1306` (`docs: record paediatric grow
 
 ## Recommended next work
 
-1. Finish the synthetic Google Calendar rehearsal by validating cancellation, public-slot conflict protection, and disconnect behavior in `docs/GOOGLE_CALENDAR.md`.
+1. Finish the synthetic Google Calendar rehearsal by validating cancellation, public-slot conflict protection, and disconnect behavior; configure the five-minute worker schedule after choosing the deployment provider.
 2. Review the nutritionist's response and approve a licensed regional food-data source before adding individual foods.
 3. Configure and validate one Twilio Sandbox reminder, then complete a separate production consent, provider, and signed-webhook design before enabling patient delivery.
 
@@ -65,4 +65,4 @@ Ask which food-composition table and edition are used in Guatemala, whether the 
 
 ## Resume instruction
 
-Read this file, `docs/ROADMAP.md`, `docs/GOOGLE_CALENDAR.md`, and the newest plan under `docs/plans/` before continuing. Verify `git status` and the latest commit. The next action is completing the remaining synthetic cancellation, public-conflict, and disconnect checks. Food-data work resumes only after reviewing the nutritionist's answers and any source or licensing documents the user provides.
+Read this file, `docs/ROADMAP.md`, `docs/GOOGLE_CALENDAR.md`, and the newest plan under `docs/plans/` before continuing. Verify `git status` and the latest commit. The next action is completing the remaining synthetic cancellation, public-conflict, and disconnect checks. The recurring Calendar worker is configured only when the deployment provider is selected; local testing uses **Sincronizar ahora**. Food-data work resumes only after reviewing the nutritionist's answers and any source or licensing documents the user provides.

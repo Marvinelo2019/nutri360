@@ -1,6 +1,6 @@
 # Google Calendar synchronization
 
-Status: implementation complete; live OAuth, free/busy, and two-event export validated. Cancellation, public conflict, and disconnect rehearsal pending.
+Status: implementation complete; live OAuth, free/busy, and two-event export browser-validated. Cancellation, public conflict, disconnect, and production scheduling remain pending.
 
 ## Outcome
 
@@ -86,6 +86,7 @@ Excluded:
 - 2026-10-07: All 499 database tests and all 84 application tests pass; lint, typecheck, formatting, production build, and database lint are clean. Live Google validation remains intentionally pending until test credentials are provided outside the repository.
 - 2026-10-07: Live OAuth and free/busy synchronization succeeded. Event export exposed a missing database grant: the service worker could claim jobs but could not read appointment timing. Added a corrective migration granting `service_role` select access only to appointment identity, organization, and start/end columns; patient and clinical columns remain unavailable through this grant.
 - 2026-10-07: Applied the corrective migration locally and retried the two existing jobs. Both completed successfully, produced two appointment-event mappings, and cleared their sanitized error state. All 504 database assertions and 84 application tests pass; lint, typecheck, formatting, production build, and database lint are clean.
+- 2026-10-07: User confirmed in the browser that both synthetic appointments appear and synchronize correctly in Google Calendar. Local synchronization remains manual through **Sincronizar ahora**; a five-minute recurring worker will be configured with the eventual deployment provider.
 
 ## Decision log
 
@@ -94,3 +95,4 @@ Excluded:
 - 2026-10-07: Export generic events and import only free/busy intervals, never Google event content.
 - 2026-10-07: Use deterministic Google event IDs plus a durable outbox so retries cannot create duplicate events.
 - 2026-10-07: Use application-layer authenticated encryption for refresh tokens and keep the encryption key outside the database and repository.
+- 2026-10-07: Keep local development synchronization explicit and defer the recurring five-minute worker configuration until the deployment platform is selected.
