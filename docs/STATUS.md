@@ -8,7 +8,7 @@ Public booking, reusable meal-plan templates, private branded meal-plan PDF gene
 
 The secure pre-consultation intake increment is complete and browser-validated. Clinicians can create expiring single-use links, revoke unused invitations, and review immutable patient submissions without automatically overwriting the professional clinical history. The validated flow created a link, registered patient answers, rejected reuse of the completed link, and created a second working invitation.
 
-The WHO paediatric growth-reference increment is complete locally. For patients under 18, weight and height now produce sex- and age-specific BMI-for-age and height-for-age z-scores using WHO 2006 (through 60 months) or WHO 2007 (from 61 months); weight-for-age is included only through 120 months. Results preserve the exact age, source version, classifications, plausibility flags, and calculation pathway without applying adult BMI cut-offs or presenting the output as a diagnosis.
+The WHO paediatric growth-reference increment is complete and browser-validated. The user registered the suggested under-five and adolescent test patients, entered their weight and height, and confirmed the age-aware WHO messages in both records. For patients under 18, weight and height produce sex- and age-specific BMI-for-age and height-for-age z-scores using WHO 2006 (through 60 months) or WHO 2007 (from 61 months); weight-for-age is included only through 120 months. Results preserve the exact age, source version, classifications, plausibility flags, and calculation pathway without applying adult BMI cut-offs or presenting the output as a diagnosis.
 
 A Twilio WhatsApp Sandbox adapter is committed and awaits account credentials plus one live test. It is intentionally restricted to one organization and one joined test number; production patient delivery remains disabled.
 
@@ -48,14 +48,13 @@ Individual-food work remains intentionally paused. The user is consulting a nutr
 
 ## Important repository state
 
-Local `main` and GitLab `origin/main` share the `dee1064` checkpoint (`feat: add secure pre-consultation intake`). The worktree contains the uncommitted WHO paediatric growth-reference increment and this status update.
+The WHO paediatric growth implementation is committed in `2036783` (`feat: add WHO paediatric growth references`) and synchronized with GitLab `origin/main`.
 
 ## Recommended next work
 
-1. Browser-validate one under-five and one adolescent measurement, including the stored WHO version and the absence of weight-for-age after 10 years.
-2. Continue appointment operations with Google Calendar synchronization.
-3. Review the nutritionist's response and approve a licensed regional food-data source before adding individual foods.
-4. Configure and validate one Twilio Sandbox reminder, then complete a separate production consent, provider, and signed-webhook design before enabling patient delivery.
+1. Continue appointment operations with Google Calendar synchronization.
+2. Review the nutritionist's response and approve a licensed regional food-data source before adding individual foods.
+3. Configure and validate one Twilio Sandbox reminder, then complete a separate production consent, provider, and signed-webhook design before enabling patient delivery.
 
 ## Pending professional validation
 
@@ -63,4 +62,4 @@ Ask which food-composition table and edition are used in Guatemala, whether the 
 
 ## Resume instruction
 
-Read this file, `docs/ROADMAP.md`, and the newest plan under `docs/plans/` before continuing. Verify `git status` and the latest commit. Finish the focused browser validation for paediatric growth, then continue with Google Calendar synchronization. Food-data work resumes only after reviewing the nutritionist's answers and any source or licensing documents the user provides.
+Read this file, `docs/ROADMAP.md`, and the newest plan under `docs/plans/` before continuing. Verify `git status` and the latest commit. The next recommended increment is Google Calendar synchronization. Food-data work resumes only after reviewing the nutritionist's answers and any source or licensing documents the user provides.

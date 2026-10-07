@@ -1,6 +1,6 @@
 # WHO paediatric growth references
 
-Status: implementation complete; focused browser validation pending.
+Status: complete and browser-validated.
 
 ## Outcome
 
@@ -73,6 +73,7 @@ Excluded:
 - 2026-10-07: Imported 11,934 LMS rows from 12 official WHO workbooks with recorded URLs and SHA-256 checksums through a deterministic generator.
 - 2026-10-07: Added the protected paediatric calculation RPC, immutable snapshot fields, WHO pathway presentation, adult-path separation, and age-aware form behavior.
 - 2026-10-07: Added 28 focused pgTAP assertions, including the official restricted-LMS example for an 11-year-old boy. All 462 database tests and all 78 application tests pass; lint, typecheck, formatting, production build, and database lint are clean.
+- 2026-10-07: User browser validation completed with the suggested under-five and adolescent records. Weight, height, age-aware WHO presentation, and explanatory messages rendered successfully in both patient records.
 
 ## Decision log
 
