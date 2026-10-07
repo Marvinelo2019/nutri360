@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { getClinicalHistory } from "@/features/clinical-history/data";
 import { HistoryForm } from "@/features/clinical-history/history-form";
 import { LabResultForm } from "@/features/clinical-history/lab-result-form";
+import { getPatientIntakeRecords } from "@/features/intake/data";
+import { IntakeInvitePanel } from "@/features/intake/intake-invite-panel";
+import { IntakeSubmissions } from "@/features/intake/intake-submissions";
 import { clinicDateKey } from "@/lib/format";
 
 export const metadata = { title: "Historia clínica" };
@@ -18,8 +21,11 @@ export default async function ClinicalHistoryPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const record = await getClinicalHistory(id);
-  if (!record) notFound();
+  const [record, intake] = await Promise.all([
+    getClinicalHistory(id),
+    getPatientIntakeRecords(id),
+  ]);
+  if (!record || !intake) notFound();
   return (
     <div className="mx-auto max-w-6xl">
       <Link
@@ -37,6 +43,10 @@ export default async function ClinicalHistoryPage({
           Antecedentes, alimentación, hábitos y resultados de laboratorio.
         </p>
       </header>
+      <div className="mt-6">
+        <IntakeInvitePanel invites={intake.invites} patientId={id} />
+        <IntakeSubmissions submissions={intake.submissions} />
+      </div>
       <div className="mt-6">
         <HistoryForm
           dietary={record.dietary}

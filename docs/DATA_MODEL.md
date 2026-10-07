@@ -26,7 +26,8 @@ Store timestamps in UTC and render them using the organization's time zone. Stor
 - `patients`: general data, birth date, sex used for formulas when required, contact preferences, status, and consent timestamps.
 - `patient_histories`: goals, diagnoses, allergies, medications, family history, and configurable structured history.
 - `dietary_histories`: 24-hour recall, habits, water, sleep, activity, preferences, and restrictions.
-- `intake_invites`: scoped token, expiration, completion state, and patient association.
+- `intake_invites`: patient-scoped pre-consultation invitation with a one-way token hash, consent version, expiration, completion, revocation, and creating professional. Raw bearer tokens are never stored.
+- `intake_submissions`: immutable patient-provided health and dietary answers linked one-to-one to an invitation, with organization/patient ownership and a versioned consent snapshot. These remain separate from clinician-maintained histories until professional review.
 - `consultations`: date, SOAP fields, clinical summary, responsible professional.
 - `anthropometric_measurements`: weight, height, circumferences, skinfolds, body fat, calculated indicators, and units.
 - `lab_results`: test, value, unit, reference bounds, collected date, and notes.

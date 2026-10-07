@@ -157,6 +157,50 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      intake_invites: {
+        Row: {
+          completed_at: string | null;
+          consent_version: string;
+          created_at: string;
+          created_by: string;
+          expires_at: string;
+          id: string;
+          organization_id: string;
+          patient_id: string;
+          revoked_at: string | null;
+          revoked_by: string | null;
+          token_hash: string;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      intake_submissions: {
+        Row: {
+          allergies: string | null;
+          consent_accepted_at: string;
+          consent_version: string;
+          eating_habits: string | null;
+          family_history: string | null;
+          id: string;
+          invite_id: string;
+          medical_history: string | null;
+          medications: string | null;
+          organization_id: string;
+          patient_id: string;
+          physical_activity: string | null;
+          preferences: string | null;
+          recall_24h: string | null;
+          restrictions: string | null;
+          sleep_hours: number | null;
+          submitted_at: string;
+          water_liters: number | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       lab_results: {
         Row: {
           collected_on: string;
@@ -965,6 +1009,23 @@ export type Database = {
         Args: { target_rule_id: string };
         Returns: undefined;
       };
+      create_intake_invite: {
+        Args: {
+          intake_expires_at: string;
+          intake_token_hash: string;
+          target_patient_id: string;
+        };
+        Returns: string;
+      };
+      get_public_intake_context: {
+        Args: { intake_token_hash: string };
+        Returns: {
+          brand_color: string;
+          consent_version: string;
+          contact_phone: string | null;
+          organization_name: string;
+        }[];
+      };
       get_public_booking_context: {
         Args: { booking_slug: string };
         Returns: {
@@ -1186,6 +1247,10 @@ export type Database = {
         };
         Returns: undefined;
       };
+      revoke_intake_invite: {
+        Args: { target_invite_id: string };
+        Returns: undefined;
+      };
       sell_patient_package: {
         Args: {
           create_linked_payment: boolean;
@@ -1201,6 +1266,24 @@ export type Database = {
       set_package_active: {
         Args: { next_active: boolean; target_package_id: string };
         Returns: undefined;
+      };
+      submit_public_intake: {
+        Args: {
+          accepted_consent_version: string;
+          intake_allergies: string;
+          intake_eating_habits: string;
+          intake_family_history: string;
+          intake_medical_history: string;
+          intake_medications: string;
+          intake_physical_activity: string;
+          intake_preferences: string;
+          intake_recall_24h: string;
+          intake_restrictions: string;
+          intake_sleep_hours: number | null;
+          intake_token_hash: string;
+          intake_water_liters: number | null;
+        };
+        Returns: string;
       };
     };
     Enums: {

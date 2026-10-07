@@ -1,14 +1,16 @@
 # Current project status
 
-Last updated: 2026-10-06.
+Last updated: 2026-10-07.
 
 ## Current checkpoint
 
-Public booking, reusable meal-plan templates, private branded meal-plan PDF generation, and the provider-neutral appointment reminder center are complete and browser-validated. Migration `20260930003500_appointment_reminders.sql` is applied locally.
+Public booking, reusable meal-plan templates, private branded meal-plan PDF generation, the provider-neutral appointment reminder center, consultation packages, the session-consumption ledger, monthly operational reporting, Excel export, and the expanded dashboard are complete and committed to `main`.
 
-A Twilio WhatsApp Sandbox adapter is implemented locally and awaits account credentials plus one live test. It is intentionally restricted to one organization and one joined test number; production patient delivery remains disabled.
+The secure pre-consultation intake increment is complete and browser-validated. Clinicians can create expiring single-use links, revoke unused invitations, and review immutable patient submissions without automatically overwriting the professional clinical history. The validated flow created a link, registered patient answers, rejected reuse of the completed link, and created a second working invitation.
 
-Reusable consultation packages and the immutable session-consumption ledger are complete and browser-validated. The local validation created four package definitions and sold two packages with linked payments to synthetic patients.
+A Twilio WhatsApp Sandbox adapter is committed and awaits account credentials plus one live test. It is intentionally restricted to one organization and one joined test number; production patient delivery remains disabled.
+
+Reusable consultation packages and the immutable session-consumption ledger are browser-validated. The local validation created four package definitions and sold two packages with linked payments to synthetic patients. The monthly report and Excel workbook were also validated through the authenticated application flow.
 
 Individual-food work remains intentionally paused. The user is consulting a nutritionist to validate the regional data source and professional workflow; do not invent or seed nutritional values while this decision is pending.
 
@@ -30,22 +32,27 @@ Individual-food work remains intentionally paused. The user is consulting a nutr
 - Automatic appointment confirmation, 24-hour, and 2-hour reminder scheduling with configurable channel, cancellation, missing-contact visibility, idempotent worker leases, bounded retries, and immutable attempt history.
 - An Agenda reminder center that clearly distinguishes queued, sent, cancelled, failed, and contact-blocked jobs. Live delivery remains disabled until a messaging provider is selected and configured.
 - Reusable package definitions, patient purchases with frozen commercial terms, linked paid/pending payments, derived session balances, completed-appointment consumption, and immutable compensating reversals.
+- Organization-local monthly operational reporting with appointment, no-show, revenue, pending-balance, package-sale, and session-consumption totals.
+- Protected Excel export with reconciliable `Resumen`, `Citas`, `Pagos`, and `Paquetes` worksheets and no clinical or patient-contact fields.
+- Expanded operational dashboard metrics for appointments, billing, packages, and session balances.
+- Expiring and revocable pre-consultation links with hashed bearer tokens, versioned consent, durable throttling, immutable submissions, and clinician-only review.
 
 ## Verification
 
-- Application: 25 test files and 66 tests pass.
-- Database: 15 pgTAP files and 395 tests pass.
+- Application: 29 test files and 76 tests pass.
+- Database: 17 pgTAP files and 434 tests pass.
 - ESLint, strict TypeScript, Prettier check, production build, and Supabase database lint pass.
 
 ## Important repository state
 
-The completed and browser-validated public-booking, reusable-template, branded PDF, and appointment-reminder queue increments are preserved in consecutive feature checkpoints on `main`. Twilio Sandbox and package-ledger work remain uncommitted local increments.
+Local `main` and GitLab `origin/main` share the `7b29ded` checkpoint (`feat: expand operational dashboard metrics`). The worktree contains the uncommitted pre-consultation intake increment and this status update. GitLab exposes no additional branches, tags, or merge-request refs through the repository remote. Twilio Sandbox, packages, monthly reporting, Excel export, and the expanded dashboard are committed.
 
 ## Recommended next work
 
-1. Review the nutritionist's response and select a regional food-data source before adding individual foods.
-2. Choose the first live reminder channel and provider before enabling outbound messages.
-3. Add monthly no-show reporting and Excel export, then continue appointments with Google Calendar synchronization or add patient-portal access when phase 4 begins.
+1. Add age- and sex-specific WHO paediatric growth-reference calculations without applying adult cut-offs to children.
+2. Continue appointment operations with Google Calendar synchronization.
+3. Review the nutritionist's response and approve a licensed regional food-data source before adding individual foods.
+4. Configure and validate one Twilio Sandbox reminder, then complete a separate production consent, provider, and signed-webhook design before enabling patient delivery.
 
 ## Pending professional validation
 
@@ -53,4 +60,4 @@ Ask which food-composition table and edition are used in Guatemala, whether the 
 
 ## Resume instruction
 
-Read this file, `docs/ROADMAP.md`, and the newest plan under `docs/plans/` before continuing. Verify `git status` and the latest commit. Food-data work resumes only after reviewing the nutritionist's answers and any source or licensing documents the user provides.
+Read this file, `docs/ROADMAP.md`, and the newest plan under `docs/plans/` before continuing. Verify `git status` and the latest commit. The next recommended product increment is paediatric growth-reference calculation. Food-data work resumes only after reviewing the nutritionist's answers and any source or licensing documents the user provides.
